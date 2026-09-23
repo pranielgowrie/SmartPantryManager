@@ -1,4 +1,4 @@
-package com.example.smartpantymanager;
+package com.example.smartpantrymanager;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;

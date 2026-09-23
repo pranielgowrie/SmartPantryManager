@@ -1,4 +1,4 @@
-package com.example.smartpantymanager;
+package com.example.smartpantrymanager;
 
 import org.junit.Test;
 
