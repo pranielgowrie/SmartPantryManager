@@ -5,8 +5,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-public class PantryDb extends SQLiteOpenHelper
-{
+public class PantryDb extends SQLiteOpenHelper {
+
     private static final String DB_NAME = "smart_pantry.db";
     private static final int DB_VERSION = 1;
 
@@ -52,7 +52,7 @@ public class PantryDb extends SQLiteOpenHelper
     public void onConfigure(SQLiteDatabase db) {
         super.onConfigure(db);
 
-// Enforces recipe and ingredient relationships.
+        // Enforces recipe and ingredient relationships.
         db.setForeignKeyConstraintsEnabled(true);
     }
 
@@ -162,27 +162,83 @@ public class PantryDb extends SQLiteOpenHelper
         db.execSQL(sql);
     }
 
-                private void createSettingsTable(SQLiteDatabase db) {
-                    String sql =
-                            "CREATE TABLE IF NOT EXISTS " + SETTINGS_TABLE + " (" +
+    private void createSettingsTable(SQLiteDatabase db) {
+        String sql =
+                "CREATE TABLE IF NOT EXISTS " + SETTINGS_TABLE + " (" +
 
-                                    SETTINGS_KEY + " TEXT PRIMARY KEY " +
-                                    "CHECK(LENGTH(TRIM(" +
-                                    SETTINGS_KEY + ")) > 0), " +
+                        SETTINGS_KEY + " TEXT PRIMARY KEY " +
+                        "CHECK(LENGTH(TRIM(" +
+                        SETTINGS_KEY + ")) > 0), " +
 
-                                    SETTINGS_VALUE + " TEXT NOT NULL" +
-                                    ")";
+                        SETTINGS_VALUE + " TEXT NOT NULL" +
+                        ")";
 
-                    db.execSQL(sql);
-                }
+        db.execSQL(sql);
+    }
 
-                private void createIndexes(SQLiteDatabase db) {
-                    // Speeds up pantry matching.
-                    db.execSQL(
-                            "CREATE INDEX IF NOT EXISTS idx_pantry_key " +
-                                    "ON " + PANTRY_TABLE +
-                                    "(" + PANTRY_KEY + ")"
-                    );
+    private void createIndexes(SQLiteDatabase db) {
+        // Speeds up pantry matching.
+        db.execSQL(
+                "CREATE INDEX IF NOT EXISTS idx_pantry_key " +
+                        "ON " + PANTRY_TABLE +
+                        "(" + PANTRY_KEY + ")"
+        );
 
+        // Speeds up recipe ingredient loading.
+        db.execSQL(
+                "CREATE INDEX IF NOT EXISTS idx_recipe_item_recipe " +
+                        "ON " + RECIPE_ITEM_TABLE +
+                        "(" + RECIPE_ITEM_RECIPE_ID + ")"
+        );
 
+        // Speeds up ingredient matching.
+        db.execSQL(
+                "CREATE INDEX IF NOT EXISTS idx_recipe_item_key " +
+                        "ON " + RECIPE_ITEM_TABLE +
+                        "(" + RECIPE_ITEM_KEY + ")"
+        );
+
+        // Speeds up expiry-date queries.
+        db.execSQL(
+                "CREATE INDEX IF NOT EXISTS idx_pantry_expiry " +
+                        "ON " + PANTRY_TABLE +
+                        "(" + PANTRY_EXPIRY + ")"
+        );
+    }
+
+    private void insertDefaultSettings(SQLiteDatabase db) {
+        insertDefaultSetting(db, "expiry_alerts", "true");
+        insertDefaultSetting(db, "expiry_days", "3");
+        insertDefaultSetting(db, "preferred_units", "metric");
+    }
+
+    private void insertDefaultSetting(
+            SQLiteDatabase db,
+            String key,
+            String value) {
+
+        ContentValues values = new ContentValues();
+        values.put(SETTINGS_KEY, key);
+        values.put(SETTINGS_VALUE, value);
+
+        // Keeps the existing value if initialization repeats.
+        db.insertWithOnConflict(
+                SETTINGS_TABLE,
+                null,
+                values,
+                SQLiteDatabase.CONFLICT_IGNORE
+        );
+    }
+
+    @Override
+    public void onUpgrade(
+            SQLiteDatabase db,
+            int oldVersion,
+            int newVersion) {
+
+        // Apply every missed migration in sequence.
+        if (oldVersion < 2) {
+            // Add the version 2 migration here.
+        }
+    }
 }
