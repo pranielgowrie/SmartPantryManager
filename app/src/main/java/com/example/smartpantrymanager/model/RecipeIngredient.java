@@ -1,5 +1,8 @@
 package com.example.smartpantrymanager.model;
 
+import com.example.smartpantrymanager.util.NameNormalizer;
+import com.example.smartpantrymanager.util.UnitConverter;
+
 public class RecipeIngredient {
 
     private long id;
@@ -15,13 +18,11 @@ public class RecipeIngredient {
     public RecipeIngredient(
             long recipeId,
             String name,
-            String key,
             double quantity,
             String unit) {
 
         setRecipeId(recipeId);
         setName(name);
-        setKey(key);
         setQuantity(quantity);
         setUnit(unit);
     }
@@ -30,18 +31,10 @@ public class RecipeIngredient {
             long id,
             long recipeId,
             String name,
-            String key,
             double quantity,
             String unit) {
 
-        this(
-                recipeId,
-                name,
-                key,
-                quantity,
-                unit
-        );
-
+        this(recipeId, name, quantity, unit);
         setId(id);
     }
 
@@ -87,22 +80,11 @@ public class RecipeIngredient {
         }
 
         this.name = cleanedName;
+        this.key = NameNormalizer.normalize(cleanedName);
     }
 
     public String getKey() {
         return key;
-    }
-
-    public void setKey(String key) {
-        String cleanedKey = clean(key).toLowerCase();
-
-        if (cleanedKey.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Ingredient key is required."
-            );
-        }
-
-        this.key = cleanedKey;
     }
 
     public double getQuantity() {
@@ -110,9 +92,11 @@ public class RecipeIngredient {
     }
 
     public void setQuantity(double quantity) {
-        if (!Double.isFinite(quantity) || quantity <= 0) {
+        if (!Double.isFinite(quantity)
+                || quantity <= 0) {
+
             throw new IllegalArgumentException(
-                    "Quantity must be a valid number greater than zero."
+                    "Quantity must be greater than zero."
             );
         }
 
@@ -124,28 +108,21 @@ public class RecipeIngredient {
     }
 
     public void setUnit(String unit) {
-        String cleanedUnit = clean(unit).toLowerCase();
+        String normalizedUnit =
+                UnitConverter.normalize(unit);
 
-        if (!isSupportedUnit(cleanedUnit)) {
+        if (!UnitConverter.isSupported(normalizedUnit)) {
             throw new IllegalArgumentException(
-                    "Unsupported ingredient unit."
+                    "Unsupported unit."
             );
         }
 
-        this.unit = cleanedUnit;
-    }
-
-    private boolean isSupportedUnit(String unit) {
-        return unit.equals("item")
-                || unit.equals("g")
-                || unit.equals("kg")
-                || unit.equals("ml")
-                || unit.equals("l")
-                || unit.equals("tsp")
-                || unit.equals("tbsp");
+        this.unit = normalizedUnit;
     }
 
     private String clean(String value) {
-        return value == null ? "" : value.trim();
+        return value == null
+                ? ""
+                : value.trim();
     }
 }

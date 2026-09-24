@@ -5,12 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class Recipe {
-
     private long id;
     private String name;
     private String steps;
     private final List<RecipeIngredient> ingredients;
-
     public Recipe() {
         ingredients = new ArrayList<>();
     }
@@ -80,7 +78,7 @@ public class Recipe {
     }
 
     public List<RecipeIngredient> getIngredients() {
-        // Prevents callers from modifying the internal list.
+        // Prevents direct changes to the internal list.
         return Collections.unmodifiableList(ingredients);
     }
 
@@ -103,7 +101,7 @@ public class Recipe {
 
         if (ingredient == null) {
             throw new IllegalArgumentException(
-                    "Recipe ingredient cannot be null."
+                    "Recipe ingredient is required."
             );
         }
 
@@ -121,7 +119,8 @@ public class Recipe {
 
     public boolean removeIngredient(long ingredientId) {
         return ingredients.removeIf(
-                ingredient -> ingredient.getId() == ingredientId
+                ingredient ->
+                        ingredient.getId() == ingredientId
         );
     }
 
@@ -153,6 +152,8 @@ public class Recipe {
     }
 
     private String clean(String value) {
-        return value == null ? "" : value.trim();
+        return value == null
+                ? ""
+                : value.trim();
     }
 }
