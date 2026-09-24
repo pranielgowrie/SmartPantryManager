@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
+
+    <!-- Application name -->
     <string name="app_name">Smart Pantry Manager</string>
+
+    <!-- Pantry screen -->
     <string name="pantry_title">My Pantry</string>
     <string name="pantry_subtitle">Track the ingredients available at home.</string>
     <string name="pantry_empty">Your pantry is empty. Add an ingredient to get started.</string>
+
+    <!-- Pantry actions -->
     <string name="add_ingredient">Add Ingredient</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+
+    <!-- Pantry item details -->
+    <string name="expiry_value">Expires: %1$s</string>
+
 </resources>

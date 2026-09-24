@@ -5,22 +5,35 @@ import com.example.smartpantrymanager.util.UnitConverter;
 
 // Represents one ingredient batch stored in the pantry.
 public class PantryItem {
+
+    // Database identifier
     private long id;
+
+    // Pantry item details
     private String name;
     private String key;
     private double quantity;
     private String unit;
     private String expiry;
+
+    // Creates an empty pantry item for database loading.
     public PantryItem() {
     }
 
-    public PantryItem(String name, double quantity, String unit, String expiry) {
+    // Creates a new pantry item
+    public PantryItem(
+            String name,
+            double quantity,
+            String unit,
+            String expiry) {
+
         setName(name);
         setQuantity(quantity);
         setUnit(unit);
         setExpiry(expiry);
     }
 
+    // Creates a pantry item loaded from the database
     public PantryItem(
             long id,
             String name,
@@ -37,7 +50,8 @@ public class PantryItem {
     }
 
     public void setId(long id) {
-        if (id < 0) {
+        // Rejects negative database identifiers.
+        if (Long.signum(id) == -1) {
             throw new IllegalArgumentException(
                     "Item ID cannot be negative."
             );
@@ -53,6 +67,7 @@ public class PantryItem {
     public void setName(String name) {
         String cleanedName = clean(name);
 
+        // Every pantry item requires a name.
         if (cleanedName.isEmpty()) {
             throw new IllegalArgumentException(
                     "Ingredient name is required."
@@ -74,12 +89,15 @@ public class PantryItem {
     }
 
     public void setQuantity(double quantity) {
-        boolean invalidQuantity =
+        boolean invalidNumber =
                 Double.isNaN(quantity)
-                        || Double.isInfinite(quantity)
-                        || quantity <= 0;
+                        || Double.isInfinite(quantity);
 
-        if (invalidQuantity) {
+        boolean notPositive =
+                Double.compare(quantity, 0.0) != 1;
+
+        // Quantity must be a valid positive number.
+        if (invalidNumber || notPositive) {
             throw new IllegalArgumentException(
                     "Quantity must be greater than zero."
             );
@@ -93,8 +111,11 @@ public class PantryItem {
     }
 
     public void setUnit(String unit) {
-        String normalizedUnit = UnitConverter.normalize(unit);
+        // Converts names such as grams into g.
+        String normalizedUnit =
+                UnitConverter.normalize(unit);
 
+        // Rejects unsupported measurement units.
         if (!UnitConverter.isSupported(normalizedUnit)) {
             throw new IllegalArgumentException(
                     "Unsupported unit."
@@ -109,17 +130,20 @@ public class PantryItem {
     }
 
     public void setExpiry(String expiry) {
+        // Expiry date is optional.
         if (expiry == null) {
             this.expiry = "";
-        } else {
-            this.expiry = expiry.trim();
+            return;
         }
+
+        this.expiry = expiry.trim();
     }
 
     public boolean hasExpiry() {
         return expiry != null && !expiry.isEmpty();
     }
 
+    // Removes surrounding spaces and handles null values.
     private String clean(String value) {
         if (value == null) {
             return "";
