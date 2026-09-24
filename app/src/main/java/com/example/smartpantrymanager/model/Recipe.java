@@ -2,31 +2,36 @@ package com.example.smartpantrymanager.model;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+// Storing a recipe, its preparation steps, and required ingredients.
 public class Recipe {
+
+    // Database identifier
     private long id;
+
+    // Recipe information
     private String name;
     private String steps;
+
+    // Ingredients required to make the recipe
     private final List<RecipeIngredient> ingredients;
+
+    // Creating an empty recipe for database loading.
     public Recipe() {
         ingredients = new ArrayList<>();
     }
 
-    public Recipe(
-            String name,
-            String steps) {
-
+    // Creating a new recipe before database insertion.
+    public Recipe(String name, String steps) {
         this();
         setName(name);
         setSteps(steps);
     }
 
-    public Recipe(
-            long id,
-            String name,
-            String steps) {
-
+    // Creating a recipe loaded from the database
+    public Recipe(long id, String name, String steps) {
         this(name, steps);
         setId(id);
     }
@@ -36,7 +41,8 @@ public class Recipe {
     }
 
     public void setId(long id) {
-        if (id < 0) {
+        // Prevents invalid database identifiers.
+        if (Long.signum(id) == -1) {
             throw new IllegalArgumentException(
                     "Recipe ID cannot be negative."
             );
@@ -52,6 +58,7 @@ public class Recipe {
     public void setName(String name) {
         String cleanedName = clean(name);
 
+        // Every recipe requires a name.
         if (cleanedName.isEmpty()) {
             throw new IllegalArgumentException(
                     "Recipe name is required."
@@ -68,6 +75,7 @@ public class Recipe {
     public void setSteps(String steps) {
         String cleanedSteps = clean(steps);
 
+        // Every recipe requires preparation instructions.
         if (cleanedSteps.isEmpty()) {
             throw new IllegalArgumentException(
                     "Preparation steps are required."
@@ -78,7 +86,7 @@ public class Recipe {
     }
 
     public List<RecipeIngredient> getIngredients() {
-        // Prevents direct changes to the internal list.
+        // Prevents external changes to the internal list.
         return Collections.unmodifiableList(ingredients);
     }
 
@@ -91,6 +99,7 @@ public class Recipe {
             return;
         }
 
+        // Applies validation to every ingredient.
         for (RecipeIngredient ingredient : newIngredients) {
             addIngredient(ingredient);
         }
@@ -105,6 +114,7 @@ public class Recipe {
             );
         }
 
+        // Prevents duplicate ingredient and unit combinations.
         if (containsIngredient(
                 ingredient.getKey(),
                 ingredient.getUnit())) {
@@ -118,10 +128,20 @@ public class Recipe {
     }
 
     public boolean removeIngredient(long ingredientId) {
-        return ingredients.removeIf(
-                ingredient ->
-                        ingredient.getId() == ingredientId
-        );
+        Iterator<RecipeIngredient> iterator =
+                ingredients.iterator();
+
+        while (iterator.hasNext()) {
+            RecipeIngredient ingredient =
+                    iterator.next();
+
+            if (ingredient.getId() == ingredientId) {
+                iterator.remove();
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean hasIngredients() {
@@ -151,9 +171,12 @@ public class Recipe {
         return false;
     }
 
+    // Remove the surrounding spaces and safely handle null values.
     private String clean(String value) {
-        return value == null
-                ? ""
-                : value.trim();
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
 }

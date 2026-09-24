@@ -2,6 +2,9 @@ package com.example.smartpantrymanager.util;
 
 import java.util.Locale;
 
+/**
+ * Normalizes and converts supported measurement units.
+ */
 public final class UnitConverter {
 
     private static final String MASS = "mass";
@@ -9,7 +12,7 @@ public final class UnitConverter {
     private static final String COUNT = "count";
 
     private UnitConverter() {
-        // Utility class
+        // Prevents utility class instances.
     }
 
     public static String normalize(String unit) {
@@ -61,7 +64,9 @@ public final class UnitConverter {
     }
 
     public static boolean isSupported(String unit) {
-        switch (normalize(unit)) {
+        String normalizedUnit = normalize(unit);
+
+        switch (normalizedUnit) {
             case "item":
             case "g":
             case "kg":
@@ -94,19 +99,24 @@ public final class UnitConverter {
 
         validateQuantity(quantity);
 
-        String source = normalize(fromUnit);
-        String target = normalize(toUnit);
+        String sourceUnit = normalize(fromUnit);
+        String targetUnit = normalize(toUnit);
 
-        if (!canConvert(source, target)) {
+        if (!canConvert(sourceUnit, targetUnit)) {
             throw new IllegalArgumentException(
                     "Units are not compatible."
             );
         }
 
-        double baseQuantity =
-                toBase(quantity, source);
+        double baseQuantity = toBase(
+                quantity,
+                sourceUnit
+        );
 
-        return fromBase(baseQuantity, target);
+        return fromBase(
+                baseQuantity,
+                targetUnit
+        );
     }
 
     private static double toBase(
@@ -164,7 +174,9 @@ public final class UnitConverter {
     }
 
     private static String getType(String unit) {
-        switch (normalize(unit)) {
+        String normalizedUnit = normalize(unit);
+
+        switch (normalizedUnit) {
             case "g":
             case "kg":
                 return MASS;
@@ -184,7 +196,8 @@ public final class UnitConverter {
     }
 
     private static void validateQuantity(double quantity) {
-        if (!Double.isFinite(quantity)
+        if (Double.isNaN(quantity)
+                || Double.isInfinite(quantity)
                 || quantity < 0) {
 
             throw new IllegalArgumentException(

@@ -3,24 +3,18 @@ package com.example.smartpantrymanager.model;
 import com.example.smartpantrymanager.util.NameNormalizer;
 import com.example.smartpantrymanager.util.UnitConverter;
 
+// Represents one ingredient batch stored in the pantry.
 public class PantryItem {
-
     private long id;
     private String name;
     private String key;
     private double quantity;
     private String unit;
     private String expiry;
-
     public PantryItem() {
     }
 
-    public PantryItem(
-            String name,
-            double quantity,
-            String unit,
-            String expiry) {
-
+    public PantryItem(String name, double quantity, String unit, String expiry) {
         setName(name);
         setQuantity(quantity);
         setUnit(unit);
@@ -66,6 +60,8 @@ public class PantryItem {
         }
 
         this.name = cleanedName;
+
+        // Generates the key used for recipe matching.
         this.key = NameNormalizer.normalize(cleanedName);
     }
 
@@ -78,9 +74,12 @@ public class PantryItem {
     }
 
     public void setQuantity(double quantity) {
-        if (!Double.isFinite(quantity)
-                || quantity <= 0) {
+        boolean invalidQuantity =
+                Double.isNaN(quantity)
+                        || Double.isInfinite(quantity)
+                        || quantity <= 0;
 
+        if (invalidQuantity) {
             throw new IllegalArgumentException(
                     "Quantity must be greater than zero."
             );
@@ -94,8 +93,7 @@ public class PantryItem {
     }
 
     public void setUnit(String unit) {
-        String normalizedUnit =
-                UnitConverter.normalize(unit);
+        String normalizedUnit = UnitConverter.normalize(unit);
 
         if (!UnitConverter.isSupported(normalizedUnit)) {
             throw new IllegalArgumentException(
@@ -111,18 +109,22 @@ public class PantryItem {
     }
 
     public void setExpiry(String expiry) {
-        this.expiry = expiry == null
-                ? ""
-                : expiry.trim();
+        if (expiry == null) {
+            this.expiry = "";
+        } else {
+            this.expiry = expiry.trim();
+        }
     }
 
     public boolean hasExpiry() {
-        return !expiry.isEmpty();
+        return expiry != null && !expiry.isEmpty();
     }
 
     private String clean(String value) {
-        return value == null
-                ? ""
-                : value.trim();
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
 }

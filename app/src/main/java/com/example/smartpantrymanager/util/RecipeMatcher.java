@@ -1,119 +1,138 @@
-package com.example.smartpantrymanager.util;
+package com.example.smartpantrymanager.model;
 
-import com.example.smartpantrymanager.model.PantryItem;
-import com.example.smartpantrymanager.model.Recipe;
-import com.example.smartpantrymanager.model.RecipeIngredient;
+import com.example.smartpantrymanager.util.NameNormalizer;
+import com.example.smartpantrymanager.util.UnitConverter;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+// Represents one ingredient batch stored in the pantry.
+public class PantryItem {
+    private long id;
+    private String name;
+    private String key;
+    private double quantity;
+    private String unit;
+    private String expiry;
 
-public final class RecipeMatcher {
-
-    private static final double TOLERANCE = 0.000001;
-
-    private RecipeMatcher() {
-        // Prevents instances of this utility class.
+    public PantryItem() {
     }
 
-    public static List<Recipe> findMatches(
-            List<Recipe> recipes,
-            List<PantryItem> pantryItems) {
+    public PantryItem(
+            String name,
+            double quantity,
+            String unit,
+            String expiry) {
 
-        if (recipes == null || recipes.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        if (pantryItems == null || pantryItems.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<Recipe> matches = new ArrayList<>();
-
-        for (Recipe recipe : recipes) {
-            if (canMake(recipe, pantryItems)) {
-                matches.add(recipe);
-            }
-        }
-
-        return matches;
+        setName(name);
+        setQuantity(quantity);
+        setUnit(unit);
+        setExpiry(expiry);
     }
 
-    public static boolean canMake(
-            Recipe recipe,
-            List<PantryItem> pantryItems) {
+    public PantryItem(
+            long id,
+            String name,
+            double quantity,
+            String unit,
+            String expiry) {
 
-        if (recipe == null
-                || pantryItems == null
-                || pantryItems.isEmpty()
-                || !recipe.hasIngredients()) {
-
-            return false;
-        }
-
-        for (RecipeIngredient required :
-                recipe.getIngredients()) {
-
-            if (!hasEnough(required, pantryItems)) {
-                return false;
-            }
-        }
-
-        return true;
+        this(name, quantity, unit, expiry);
+        setId(id);
     }
 
-    private static boolean hasEnough(
-            RecipeIngredient required,
-            List<PantryItem> pantryItems) {
-
-        double available = getAvailableQuantity(
-                required,
-                pantryItems
-        );
-
-        return available + TOLERANCE
-                >= required.getQuantity();
+    public long getId() {
+        return id;
     }
 
-    private static double getAvailableQuantity(
-            RecipeIngredient required,
-            List<PantryItem> pantryItems) {
-
-        double total = 0;
-
-        for (PantryItem pantryItem : pantryItems) {
-            if (!sameIngredient(required, pantryItem)) {
-                continue;
-            }
-
-            if (!UnitConverter.canConvert(
-                    pantryItem.getUnit(),
-                    required.getUnit())) {
-
-                continue;
-            }
-
-            total += UnitConverter.convert(
-                    pantryItem.getQuantity(),
-                    pantryItem.getUnit(),
-                    required.getUnit()
+    public void setId(long id) {
+        if (id < 0) {
+            throw new IllegalArgumentException(
+                    "Item ID cannot be negative."
             );
         }
 
-        return total;
+        this.id = id;
     }
 
-    private static boolean sameIngredient(
-            RecipeIngredient required,
-            PantryItem pantryItem) {
+    public String getName() {
+        return name;
+    }
 
-        if (required == null || pantryItem == null) {
-            return false;
+    public void setName(String name) {
+        String cleanedName = clean(name);
+
+        if (cleanedName.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Ingredient name is required."
+            );
         }
 
-        return NameNormalizer.matches(
-                required.getName(),
-                pantryItem.getName()
-        );
+        this.name = cleanedName;
+
+        // Generates the key used for recipe matching.
+        this.key = NameNormalizer.normalize(cleanedName);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(double quantity) {
+        boolean invalidQuantity =
+                Double.isNaN(quantity)
+                        || Double.isInfinite(quantity)
+                        || quantity <= 0;
+
+        if (invalidQuantity) {
+            throw new IllegalArgumentException(
+                    "Quantity must be greater than zero."
+            );
+        }
+
+        this.quantity = quantity;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        String normalizedUnit =
+                UnitConverter.normalize(unit);
+
+        if (!UnitConverter.isSupported(normalizedUnit)) {
+            throw new IllegalArgumentException(
+                    "Unsupported unit."
+            );
+        }
+
+        this.unit = normalizedUnit;
+    }
+
+    public String getExpiry() {
+        return expiry;
+    }
+
+    public void setExpiry(String expiry) {
+        if (expiry == null) {
+            this.expiry = "";
+            return;
+        }
+
+        this.expiry = expiry.trim();
+    }
+
+    public boolean hasExpiry() {
+        return expiry != null && !expiry.isEmpty();
+    }
+
+    private String clean(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
 }

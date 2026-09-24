@@ -3,18 +3,24 @@ package com.example.smartpantrymanager.model;
 import com.example.smartpantrymanager.util.NameNormalizer;
 import com.example.smartpantrymanager.util.UnitConverter;
 
+// Represents one ingredient which is required by a recipe.
 public class RecipeIngredient {
 
+    // Database identifiers
     private long id;
     private long recipeId;
+
+    // Ingredient details
     private String name;
     private String key;
     private double quantity;
     private String unit;
 
+    // Createing an empty object for database loading.
     public RecipeIngredient() {
     }
 
+    // Creates a new ingredient before it is saved.
     public RecipeIngredient(
             long recipeId,
             String name,
@@ -27,6 +33,7 @@ public class RecipeIngredient {
         setUnit(unit);
     }
 
+    // Creating an ingredient loaded from the database.
     public RecipeIngredient(
             long id,
             long recipeId,
@@ -43,7 +50,8 @@ public class RecipeIngredient {
     }
 
     public void setId(long id) {
-        if (id < 0) {
+        // Database IDs cannot be negative.
+        if (Long.signum(id) == -1) {
             throw new IllegalArgumentException(
                     "Ingredient ID cannot be negative."
             );
@@ -57,7 +65,8 @@ public class RecipeIngredient {
     }
 
     public void setRecipeId(long recipeId) {
-        if (recipeId < 0) {
+        // Allows zero before the recipe is saved.
+        if (Long.signum(recipeId) == -1) {
             throw new IllegalArgumentException(
                     "Recipe ID cannot be negative."
             );
@@ -73,6 +82,7 @@ public class RecipeIngredient {
     public void setName(String name) {
         String cleanedName = clean(name);
 
+        // A recipe ingredient must have a name.
         if (cleanedName.isEmpty()) {
             throw new IllegalArgumentException(
                     "Ingredient name is required."
@@ -80,6 +90,8 @@ public class RecipeIngredient {
         }
 
         this.name = cleanedName;
+
+        // Generates the key used for strict pantry matching.
         this.key = NameNormalizer.normalize(cleanedName);
     }
 
@@ -92,9 +104,13 @@ public class RecipeIngredient {
     }
 
     public void setQuantity(double quantity) {
-        if (!Double.isFinite(quantity)
-                || quantity <= 0) {
+        boolean invalidQuantity =
+                Double.isNaN(quantity)
+                        || Double.isInfinite(quantity)
+                        || Double.compare(quantity, 0.0) != 1;
 
+        // Required quantities must be valid and positive.
+        if (invalidQuantity) {
             throw new IllegalArgumentException(
                     "Quantity must be greater than zero."
             );
@@ -108,9 +124,11 @@ public class RecipeIngredient {
     }
 
     public void setUnit(String unit) {
+        // Converts unit names such as grams into g.
         String normalizedUnit =
                 UnitConverter.normalize(unit);
 
+        // Rejects units unsupported by the database.
         if (!UnitConverter.isSupported(normalizedUnit)) {
             throw new IllegalArgumentException(
                     "Unsupported unit."
@@ -120,9 +138,12 @@ public class RecipeIngredient {
         this.unit = normalizedUnit;
     }
 
+    // Removes surrounding spaces and handles null values.
     private String clean(String value) {
-        return value == null
-                ? ""
-                : value.trim();
+        if (value == null) {
+            return "";
+        }
+
+        return value.trim();
     }
 }

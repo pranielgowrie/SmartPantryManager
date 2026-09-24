@@ -4,12 +4,15 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Creates consistent ingredient names for recipe matching.
+ */
 public final class NameNormalizer {
 
-    private static final Map<String, String> ALIASES =
-            new HashMap<>();
+    private static final Map<String, String> ALIASES = new HashMap<>();
 
     static {
+        // Handles common plural ingredient names.
         ALIASES.put("eggs", "egg");
         ALIASES.put("tomatoes", "tomato");
         ALIASES.put("potatoes", "potato");
@@ -19,10 +22,11 @@ public final class NameNormalizer {
         ALIASES.put("peppers", "pepper");
         ALIASES.put("bananas", "banana");
         ALIASES.put("apples", "apple");
+        ALIASES.put("tortillas", "tortilla");
 
+        // Handles common alternative ingredient names.
         ALIASES.put("bell pepper", "pepper");
         ALIASES.put("bell peppers", "pepper");
-
         ALIASES.put("spring onion", "green onion");
         ALIASES.put("spring onions", "green onion");
         ALIASES.put("scallion", "green onion");
@@ -30,7 +34,7 @@ public final class NameNormalizer {
     }
 
     private NameNormalizer() {
-        // Utility class
+        // Prevents utility class instances.
     }
 
     public static String normalize(String name) {
@@ -40,10 +44,11 @@ public final class NameNormalizer {
             return "";
         }
 
-        return ALIASES.getOrDefault(
-                cleanedName,
-                cleanedName
-        );
+        if (ALIASES.containsKey(cleanedName)) {
+            return ALIASES.get(cleanedName);
+        }
+
+        return cleanedName;
     }
 
     public static boolean matches(
