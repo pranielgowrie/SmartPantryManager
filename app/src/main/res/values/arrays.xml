@@ -2,22 +2,22 @@
 
 <resources>
 
-    <!-- Units supported by pantry items and recipe ingredients. -->
+    <!-- Units available when adding pantry items. -->
     <string-array name="pantry_units">
-        <item>Select unit</item>
-        <item>item</item>
+        <item>Select Unit</item>
+        <item>Item</item>
         <item>g</item>
         <item>kg</item>
         <item>ml</item>
-        <item>l</item>
+        <item>L</item>
         <item>tsp</item>
         <item>tbsp</item>
     </string-array>
 
     <!-- Measurement systems available in Settings. -->
     <string-array name="unit_preferences">
-        <item>metric</item>
-        <item>imperial</item>
+        <item>Metric</item>
+        <item>Imperial</item>
     </string-array>
 
 </resources>

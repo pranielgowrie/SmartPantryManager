@@ -6,55 +6,60 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-    <!-- Holds the selected recipe details. -->
+    <!-- Displays the selected recipe details. -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-        <!-- Displays the selected recipe name. -->
+        <!-- Displays the recipe title. -->
         <TextView
                 android:id="@+id/txtRecipeTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="26sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
-        <!-- Labels the required ingredients section. -->
+        <!-- Ingredients section heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/ingredients_title"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-        <!-- Displays every required ingredient. -->
+        <!-- Displays the recipe ingredients. -->
         <TextView
                 android:id="@+id/txtRecipeIngredients"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:lineSpacingExtra="4dp"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="16sp" />
 
-        <!-- Labels the preparation section. -->
+        <!-- Preparation method heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="@string/method_title"
+                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-        <!-- Displays the recipe preparation steps. -->
+        <!-- Displays the preparation steps. -->
         <TextView
                 android:id="@+id/txtRecipeSteps"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp"
+                android:lineSpacingExtra="6dp"
+                android:textColor="?android:attr/textColorSecondary"
                 android:textSize="16sp" />
 
     </LinearLayout>

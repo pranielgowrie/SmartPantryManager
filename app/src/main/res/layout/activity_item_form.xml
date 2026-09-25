@@ -13,12 +13,32 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+        <!-- Screen title. -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/add_ingredient"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+        <!-- Screen description. -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/pantry_subtitle"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="15sp" />
+
         <!-- Ingredient name input. -->
         <EditText
                 android:id="@+id/inputName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
                 android:hint="@string/ingredient_name"
+                android:importantForAutofill="no"
                 android:inputType="textCapWords"
                 android:maxLength="60"
                 android:singleLine="true" />
@@ -28,8 +48,9 @@
                 android:id="@+id/inputQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:hint="@string/quantity"
+                android:importantForAutofill="no"
                 android:inputType="numberDecimal"
                 android:singleLine="true" />
 
@@ -38,24 +59,25 @@
                 android:id="@+id/spinnerUnit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp" />
+                android:layout_marginTop="16dp" />
 
         <!-- Optional expiry date input. -->
         <EditText
                 android:id="@+id/inputExpiry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="16dp"
                 android:hint="@string/expiry_hint"
+                android:importantForAutofill="no"
                 android:inputType="date"
                 android:singleLine="true" />
 
-        <!-- Saves the new or edited pantry item. -->
+        <!-- Saves the pantry item. -->
         <Button
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="24dp"
                 android:text="@string/save_item"
                 android:textAllCaps="false" />
 

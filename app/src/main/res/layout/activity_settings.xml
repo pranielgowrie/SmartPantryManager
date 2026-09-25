@@ -6,19 +6,20 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-    <!-- Holds the settings controls. -->
+    <!-- Holds all settings controls. -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-        <!-- Displays the screen title. -->
+        <!-- Screen title. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/settings_title"
-                android:textSize="26sp"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="28sp"
                 android:textStyle="bold" />
 
         <!-- Enables or disables expiry alerts. -->
@@ -29,17 +30,18 @@
                 android:layout_marginTop="20dp"
                 android:text="@string/expiry_alerts" />
 
-        <!-- Sets the expiry warning period. -->
+        <!-- Expiry warning period. -->
         <EditText
                 android:id="@+id/inputExpiryDays"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 android:hint="@string/expiry_days"
+                android:importantForAutofill="no"
                 android:inputType="number"
                 android:singleLine="true" />
 
-        <!-- Labels the preferred units control. -->
+        <!-- Preferred units heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -47,12 +49,27 @@
                 android:text="@string/preferred_units"
                 android:textStyle="bold" />
 
-        <!-- Selects the preferred measurement system. -->
+        <!-- Preferred measurement system. -->
         <Spinner
                 android:id="@+id/spinnerPreferredUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
+
+        <!-- Theme settings heading. -->
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="@string/theme_settings"
+                android:textStyle="bold" />
+
+        <!-- Dark mode toggle. -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchDarkMode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dark_mode" />
 
         <!-- Saves the selected settings. -->
         <Button

@@ -39,13 +39,20 @@ android {
 }
 
 dependencies {
+
+    // Android support libraries
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.10.0")
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    // Material Design components
     implementation("com.google.android.material:material:1.12.0")
 
+    // RecyclerView support
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+
+    // Unit testing
     testImplementation("junit:junit:4.13.2")
 
+    // Android instrumentation testing
     androidTestImplementation(
         "androidx.test.ext:junit:1.1.5"
     )
