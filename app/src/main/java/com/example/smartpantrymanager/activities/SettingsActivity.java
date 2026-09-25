@@ -1,5 +1,6 @@
 package com.example.smartpantrymanager.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -9,12 +10,14 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 
 import com.example.smartpantrymanager.R;
 import com.example.smartpantrymanager.database.PantryDb;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
-// Manages the user's pantry preferences.
+// Manages pantry and application settings.
 public class SettingsActivity extends AppCompatActivity {
 
     // Database setting keys.
@@ -22,11 +25,16 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String KEY_DAYS = "expiry_days";
     private static final String KEY_UNITS = "preferred_units";
 
-    // Database connection used by this screen.
+    // Theme preference keys.
+    private static final String PREFS_NAME = "smart_pantry_preferences";
+    private static final String KEY_DARK_MODE = "dark_mode";
+
+    // Database connection.
     private PantryDb pantryDb;
 
     // Settings controls.
     private SwitchCompat alertsSwitch;
+    private SwitchMaterial darkModeSwitch;
     private EditText daysInput;
     private Spinner unitsSpinner;
     private Button saveButton;
@@ -36,36 +44,38 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Prepares the database and screen controls.
+        // Initialize database.
         pantryDb = new PantryDb(getApplicationContext());
 
         bindViews();
         setupUnitsSpinner();
         loadSettings();
+        loadThemePreference();
         setListeners();
     }
 
-    // Connects Java controls to the settings layout.
+    // Connects views to XML controls.
     private void bindViews() {
-        alertsSwitch = findViewById(
-                R.id.switchExpiryAlerts
-        );
 
-        daysInput = findViewById(
-                R.id.inputExpiryDays
-        );
+        alertsSwitch =
+                findViewById(R.id.switchExpiryAlerts);
 
-        unitsSpinner = findViewById(
-                R.id.spinnerPreferredUnits
-        );
+        darkModeSwitch =
+                findViewById(R.id.switchDarkMode);
 
-        saveButton = findViewById(
-                R.id.btnSaveSettings
-        );
+        daysInput =
+                findViewById(R.id.inputExpiryDays);
+
+        unitsSpinner =
+                findViewById(R.id.spinnerPreferredUnits);
+
+        saveButton =
+                findViewById(R.id.btnSaveSettings);
     }
 
-    // Loads the supported unit preferences.
+    // Loads available unit preferences.
     private void setupUnitsSpinner() {
+
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(
                         this,
@@ -80,41 +90,68 @@ public class SettingsActivity extends AppCompatActivity {
         unitsSpinner.setAdapter(adapter);
     }
 
-    // Loads the current settings from the database.
+    // Loads pantry settings from database.
     private void loadSettings() {
-        String alertsValue = pantryDb.getSetting(
-                KEY_ALERTS,
-                "true"
-        );
 
-        String daysValue = pantryDb.getSetting(
-                KEY_DAYS,
-                "3"
-        );
+        String alertsValue =
+                pantryDb.getSetting(
+                        KEY_ALERTS,
+                        "true"
+                );
 
-        String unitsValue = pantryDb.getSetting(
-                KEY_UNITS,
-                "metric"
-        );
+        String daysValue =
+                pantryDb.getSetting(
+                        KEY_DAYS,
+                        "3"
+                );
+
+        String unitsValue =
+                pantryDb.getSetting(
+                        KEY_UNITS,
+                        "metric"
+                );
 
         alertsSwitch.setChecked(
                 Boolean.parseBoolean(alertsValue)
         );
 
         daysInput.setText(daysValue);
+
         selectUnitPreference(unitsValue);
     }
 
-    // Selects the saved unit preference.
+    // Loads saved light/dark mode preference.
+    private void loadThemePreference() {
+
+        SharedPreferences preferences =
+                getSharedPreferences(
+                        PREFS_NAME,
+                        MODE_PRIVATE
+                );
+
+        boolean isDarkMode =
+                preferences.getBoolean(
+                        KEY_DARK_MODE,
+                        false
+                );
+
+        darkModeSwitch.setChecked(isDarkMode);
+    }
+
+    // Restores previously selected units.
     private void selectUnitPreference(String preference) {
+
         int index = 0;
 
-        while (index != unitsSpinner.getCount()) {
-            String currentValue = unitsSpinner
-                    .getItemAtPosition(index)
-                    .toString();
+        while (index < unitsSpinner.getCount()) {
+
+            String currentValue =
+                    unitsSpinner
+                            .getItemAtPosition(index)
+                            .toString();
 
             if (currentValue.equalsIgnoreCase(preference)) {
+
                 unitsSpinner.setSelection(index);
                 return;
             }
@@ -123,8 +160,9 @@ public class SettingsActivity extends AppCompatActivity {
         }
     }
 
-    // Connects the Save button to the save action.
+    // Connects button and switch actions.
     private void setListeners() {
+
         saveButton.setOnClickListener(
                 new View.OnClickListener() {
                     @Override
@@ -133,16 +171,49 @@ public class SettingsActivity extends AppCompatActivity {
                     }
                 }
         );
+
+        darkModeSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> {
+
+                    SharedPreferences preferences =
+                            getSharedPreferences(
+                                    PREFS_NAME,
+                                    MODE_PRIVATE
+                            );
+
+                    preferences.edit()
+                            .putBoolean(
+                                    KEY_DARK_MODE,
+                                    isChecked
+                            )
+                            .apply();
+
+                    if (isChecked) {
+
+                        AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_YES
+                        );
+
+                    } else {
+
+                        AppCompatDelegate.setDefaultNightMode(
+                                AppCompatDelegate.MODE_NIGHT_NO
+                        );
+                    }
+                }
+        );
     }
 
     // Validates and saves the selected preferences.
     private void saveSettings() {
-        String daysText = daysInput
-                .getText()
-                .toString()
-                .trim();
+
+        String daysText =
+                daysInput.getText()
+                        .toString()
+                        .trim();
 
         if (daysText.isEmpty()) {
+
             daysInput.setError(
                     getString(R.string.expiry_days_required)
             );
@@ -154,8 +225,11 @@ public class SettingsActivity extends AppCompatActivity {
         int warningDays;
 
         try {
+
             warningDays = Integer.parseInt(daysText);
+
         } catch (NumberFormatException exception) {
+
             daysInput.setError(
                     getString(R.string.invalid_expiry_days)
             );
@@ -165,6 +239,7 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         if (warningDays < 1) {
+
             daysInput.setError(
                     getString(R.string.invalid_expiry_days)
             );
@@ -176,11 +251,11 @@ public class SettingsActivity extends AppCompatActivity {
         Object selectedUnits =
                 unitsSpinner.getSelectedItem();
 
-        String unitPreference = selectedUnits == null
-                ? "metric"
-                : selectedUnits.toString().toLowerCase();
+        String unitPreference =
+                selectedUnits == null
+                        ? "metric"
+                        : selectedUnits.toString().toLowerCase();
 
-        // Stores the current settings in the database.
         pantryDb.saveSetting(
                 KEY_ALERTS,
                 String.valueOf(alertsSwitch.isChecked())
@@ -205,7 +280,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        // Releases the database when the Activity closes.
+
         if (pantryDb != null) {
             pantryDb.close();
         }

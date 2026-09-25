@@ -1,5 +1,6 @@
 package com.example.smartpantrymanager.database;
 
+import com.example.smartpantrymanager.model.PantryItem;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
