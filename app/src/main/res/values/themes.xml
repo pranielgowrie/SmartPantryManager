@@ -17,9 +17,18 @@
         <item name="colorSecondaryVariant">@color/teal_700</item>
         <item name="colorOnSecondary">@color/black</item>
 
-        <!-- Uses the dark primary colour for the status bar. -->
+        <!-- Applies the darker primary colour to the status bar. -->
         <item name="android:statusBarColor">
             ?attr/colorPrimaryVariant
+        </item>
+
+        <!-- Uses a light navigation bar with dark controls. -->
+        <item name="android:navigationBarColor">
+            @color/white
+        </item>
+
+        <item name="android:windowLightNavigationBar">
+            true
         </item>
 
     </style>

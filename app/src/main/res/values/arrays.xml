@@ -2,7 +2,7 @@
 
 <resources>
 
-    <!-- Units supported by the pantry database. -->
+    <!-- Units supported by pantry items and recipe ingredients. -->
     <string-array name="pantry_units">
         <item>Select unit</item>
         <item>item</item>
