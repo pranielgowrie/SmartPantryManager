@@ -1,7 +1,6 @@
 package com.example.smartpantrymanager.activities;
 
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,24 +13,23 @@ import com.example.smartpantrymanager.R;
 import com.example.smartpantrymanager.database.PantryDb;
 import com.example.smartpantrymanager.model.PantryItem;
 
-// Adds new pantry items and edits existing pantry items.
+// Adds and edits pantry items.
 public class ItemFormActivity extends AppCompatActivity {
 
-    // Intent key used when editing an existing item.
+    // Intent key
     public static final String EXTRA_ITEM_ID = "item_id";
 
-    // Database connection used by the form.
+    // Database connection
     private PantryDb pantryDb;
 
-    // Form controls.
+    // UI controls
     private EditText nameInput;
     private EditText quantityInput;
     private EditText expiryInput;
     private Spinner unitSpinner;
     private Button saveButton;
 
-    // Item being edited. Zero means a new item.
-    private long itemId;
+    // Item being edited
     private PantryItem currentItem;
 
     @Override
@@ -39,7 +37,6 @@ public class ItemFormActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_form);
 
-        // Prepares the database and form controls.
         pantryDb = new PantryDb(getApplicationContext());
 
         bindViews();
@@ -48,30 +45,16 @@ public class ItemFormActivity extends AppCompatActivity {
         loadItem();
     }
 
-    // Connects Java controls to the form layout.
+    // Binds layout controls.
     private void bindViews() {
-        nameInput = findViewById(
-                R.id.inputName
-        );
-
-        quantityInput = findViewById(
-                R.id.inputQuantity
-        );
-
-        expiryInput = findViewById(
-                R.id.inputExpiry
-        );
-
-        unitSpinner = findViewById(
-                R.id.spinnerUnit
-        );
-
-        saveButton = findViewById(
-                R.id.btnSave
-        );
+        nameInput = findViewById(R.id.inputName);
+        quantityInput = findViewById(R.id.inputQuantity);
+        expiryInput = findViewById(R.id.inputExpiry);
+        unitSpinner = findViewById(R.id.spinnerUnit);
+        saveButton = findViewById(R.id.btnSave);
     }
 
-    // Loads the supported units into the Spinner.
+    // Loads the available units.
     private void setupUnitSpinner() {
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(
@@ -87,26 +70,21 @@ public class ItemFormActivity extends AppCompatActivity {
         unitSpinner.setAdapter(adapter);
     }
 
-    // Connects the Save button to the save action.
+    // Connects form actions.
     private void setListeners() {
         saveButton.setOnClickListener(
-                new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        saveItem();
-                    }
-                }
+                view -> saveItem()
         );
     }
 
-    // Loads an existing item when an item ID was provided.
+    // Loads an existing item when editing.
     private void loadItem() {
-        itemId = getIntent().getLongExtra(
+        long itemId = getIntent().getLongExtra(
                 EXTRA_ITEM_ID,
                 0
         );
 
-        if (itemId == 0) {
+        if (itemId <= 0) {
             setTitle(R.string.add_ingredient);
             return;
         }
@@ -114,13 +92,7 @@ public class ItemFormActivity extends AppCompatActivity {
         currentItem = pantryDb.getItem(itemId);
 
         if (currentItem == null) {
-            Toast.makeText(
-                    this,
-                    R.string.item_not_found,
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            finish();
+            showItemNotFound();
             return;
         }
 
@@ -128,61 +100,64 @@ public class ItemFormActivity extends AppCompatActivity {
         displayItem(currentItem);
     }
 
-    // Displays the selected item's current values.
+    // Displays the selected item.
     private void displayItem(PantryItem item) {
         nameInput.setText(item.getName());
-
         quantityInput.setText(
                 String.valueOf(item.getQuantity())
         );
-
         expiryInput.setText(item.getExpiry());
+
         selectUnit(item.getUnit());
     }
 
-    // Selects the item's current unit in the Spinner.
+    // Selects the stored unit.
     private void selectUnit(String unit) {
-        int index = 0;
+        if (unit == null) {
+            return;
+        }
 
-        while (index != unitSpinner.getCount()) {
-            String spinnerUnit = unitSpinner
-                    .getItemAtPosition(index)
-                    .toString();
+        for (int index = 0;
+             index < unitSpinner.getCount();
+             index++) {
+
+            String spinnerUnit =
+                    unitSpinner
+                            .getItemAtPosition(index)
+                            .toString();
 
             if (spinnerUnit.equalsIgnoreCase(unit)) {
                 unitSpinner.setSelection(index);
                 return;
             }
-
-            index++;
         }
     }
 
-    // Reads, validates, and saves the form values.
+    // Reads and validates the form.
     private void saveItem() {
-        String name = nameInput
-                .getText()
-                .toString()
-                .trim();
+        String name =
+                nameInput.getText()
+                        .toString()
+                        .trim();
 
-        String quantityText = quantityInput
-                .getText()
-                .toString()
-                .trim();
+        String quantityText =
+                quantityInput.getText()
+                        .toString()
+                        .trim();
 
-        String expiry = expiryInput
-                .getText()
-                .toString()
-                .trim();
+        String expiry =
+                expiryInput.getText()
+                        .toString()
+                        .trim();
 
         Object selectedUnit =
                 unitSpinner.getSelectedItem();
 
         String unit = selectedUnit == null
                 ? ""
-                : selectedUnit.toString();
+                : selectedUnit.toString().trim();
 
-        if (!validateForm(
+        if (!validateRequiredFields(
                 name,
                 quantityText,
                 unit)) {
@@ -190,31 +165,9 @@ public class ItemFormActivity extends AppCompatActivity {
             return;
         }
 
-        double quantity;
+        Double quantity = parseQuantity(quantityText);
 
-        try {
-            quantity = Double.parseDouble(
-                    quantityText
-            );
-        } catch (NumberFormatException exception) {
-            quantityInput.setError(
-                    getString(R.string.invalid_quantity)
-            );
-
-            quantityInput.requestFocus();
-            return;
-        }
-
-        // Rejects zero, negative, and invalid quantities.
-        if (Double.compare(quantity, 0.0) != 1
-                || Double.isNaN(quantity)
-                || Double.isInfinite(quantity)) {
-
-            quantityInput.setError(
-                    getString(R.string.invalid_quantity)
-            );
-
-            quantityInput.requestFocus();
+        if (quantity == null) {
             return;
         }
 
@@ -227,17 +180,22 @@ public class ItemFormActivity extends AppCompatActivity {
             );
 
             saveToDatabase(item);
+
         } catch (IllegalArgumentException exception) {
+            String message = exception.getMessage();
+
             Toast.makeText(
                     this,
-                    exception.getMessage(),
+                    message == null
+                            ? getString(R.string.save_failed)
+                            : message,
                     Toast.LENGTH_SHORT
             ).show();
         }
     }
 
-    // Checks that all required form values were entered.
-    private boolean validateForm(
+    // Validates required fields.
+    private boolean validateRequiredFields(
             String name,
             String quantity,
             String unit) {
@@ -260,10 +218,13 @@ public class ItemFormActivity extends AppCompatActivity {
             return false;
         }
 
-        if (unit.isEmpty()
-                || unit.equalsIgnoreCase(
-                getString(R.string.select_unit))) {
+        boolean unitMissing =
+                unit.isEmpty()
+                        || unit.equalsIgnoreCase(
+                        getString(R.string.select_unit)
+                );
 
+        if (unitMissing) {
             Toast.makeText(
                     this,
                     R.string.unit_required,
@@ -276,13 +237,45 @@ public class ItemFormActivity extends AppCompatActivity {
         return true;
     }
 
-    // Inserts a new item or updates the selected item.
+    // Parses and validates the quantity.
+    private Double parseQuantity(String quantityText) {
+        double quantity;
+
+        try {
+            quantity = Double.parseDouble(quantityText);
+        } catch (NumberFormatException exception) {
+            showQuantityError();
+            return null;
+        }
+
+        boolean invalid =
+                quantity <= 0
+                        || Double.isNaN(quantity)
+                        || Double.isInfinite(quantity);
+
+        if (invalid) {
+            showQuantityError();
+            return null;
+        }
+
+        return quantity;
+    }
+
+    // Shows quantity validation feedback.
+    private void showQuantityError() {
+        quantityInput.setError(
+                getString(R.string.invalid_quantity)
+        );
+
+        quantityInput.requestFocus();
+    }
+
+    // Inserts or updates the item.
     private void saveToDatabase(PantryItem item) {
         boolean saved;
 
         if (currentItem == null) {
-            long newId = pantryDb.addItem(item);
-            saved = newId != -1;
+            saved = pantryDb.addItem(item) != -1;
         } else {
             item.setId(currentItem.getId());
             saved = pantryDb.updateItem(item);
@@ -307,9 +300,20 @@ public class ItemFormActivity extends AppCompatActivity {
         finish();
     }
 
+    // Shows missing item feedback.
+    private void showItemNotFound() {
+        Toast.makeText(
+                this,
+                R.string.item_not_found,
+                Toast.LENGTH_SHORT
+        ).show();
+
+        finish();
+    }
+
     @Override
     protected void onDestroy() {
-        // Releases the database when the Activity closes.
+        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

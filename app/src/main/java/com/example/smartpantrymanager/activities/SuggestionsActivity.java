@@ -2,13 +2,17 @@ package com.example.smartpantrymanager.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.smartpantrymanager.MainActivity;
 import com.example.smartpantrymanager.R;
 import com.example.smartpantrymanager.adapter.RecipeAdapter;
 import com.example.smartpantrymanager.database.PantryDb;
@@ -18,20 +22,18 @@ import com.example.smartpantrymanager.util.RecipeMatcher;
 
 import java.util.List;
 
-// Displays recipes that fully match the current pantry.
+// Displays recipes that fully match the pantry.
 public class SuggestionsActivity extends AppCompatActivity
         implements RecipeAdapter.RecipeListener {
 
-    // Database connection used to load pantry and recipe data.
+    // Database connection
     private PantryDb pantryDb;
 
-    // Displays recipes that pass strict matching.
+    // UI controls
     private RecyclerView recipeList;
-
-    // Displays feedback when no recipes match.
     private TextView emptyText;
 
-    // Connects recipe data to the RecyclerView.
+    // Recipe list adapter
     private RecipeAdapter recipeAdapter;
 
     @Override
@@ -39,7 +41,8 @@ public class SuggestionsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suggestions);
 
-        // Prepares the database and screen controls.
+        setTitle("Suggested Recipes");
+
         pantryDb = new PantryDb(getApplicationContext());
 
         bindViews();
@@ -50,22 +53,17 @@ public class SuggestionsActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        // Refreshes suggestions when pantry contents change.
+        // Refreshes matches after pantry changes.
         loadSuggestions();
     }
 
-    // Connects Java controls to the suggestions layout.
+    // Binds layout controls.
     private void bindViews() {
-        recipeList = findViewById(
-                R.id.recipeList
-        );
-
-        emptyText = findViewById(
-                R.id.txtSuggestionsEmpty
-        );
+        recipeList = findViewById(R.id.recipeList);
+        emptyText = findViewById(R.id.txtSuggestionsEmpty);
     }
 
-    // Prepares the RecyclerView and its adapter.
+    // Configures the recipe list.
     private void setupRecipeList() {
         recipeAdapter = new RecipeAdapter(this);
 
@@ -76,7 +74,7 @@ public class SuggestionsActivity extends AppCompatActivity
         recipeList.setAdapter(recipeAdapter);
     }
 
-    // Loads recipes that satisfy every ingredient requirement.
+    // Loads strictly matched recipes.
     private void loadSuggestions() {
         List<PantryItem> pantryItems =
                 pantryDb.getItems();
@@ -94,7 +92,7 @@ public class SuggestionsActivity extends AppCompatActivity
         updateEmptyState(matches);
     }
 
-    // Shows feedback when no recipes match the pantry.
+    // Updates the empty list message.
     private void updateEmptyState(
             List<Recipe> matches) {
 
@@ -102,25 +100,24 @@ public class SuggestionsActivity extends AppCompatActivity
                 matches != null
                         && !matches.isEmpty();
 
-        if (hasMatches) {
-            recipeList.setVisibility(View.VISIBLE);
-            emptyText.setVisibility(View.GONE);
-            return;
-        }
+        recipeList.setVisibility(
+                hasMatches ? View.VISIBLE : View.GONE
+        );
 
-        recipeList.setVisibility(View.GONE);
-        emptyText.setVisibility(View.VISIBLE);
+        emptyText.setVisibility(
+                hasMatches ? View.GONE : View.VISIBLE
+        );
     }
 
     @Override
     public void onRecipeSelected(Recipe recipe) {
-        if (recipe == null) {
+        if (recipe == null || recipe.getId() <= 0) {
             return;
         }
 
-        // Opens the selected recipe details.
+        // Opens the selected recipe.
         Intent intent = new Intent(
-                SuggestionsActivity.this,
+                this,
                 RecipeActivity.class
         );
 
@@ -133,8 +130,56 @@ public class SuggestionsActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(
+                R.menu.main_menu,
+                menu
+        );
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(
+            @NonNull MenuItem item) {
+
+        int itemId = item.getItemId();
+
+        if (itemId == R.id.menu_pantry) {
+            openScreen(MainActivity.class);
+            return true;
+        }
+
+        if (itemId == R.id.menu_suggestions) {
+            return true;
+        }
+
+        if (itemId == R.id.menu_settings) {
+            openScreen(SettingsActivity.class);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Opens a navigation destination.
+    private void openScreen(Class<?> destination) {
+        Intent intent = new Intent(
+                this,
+                destination
+        );
+
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
+        );
+
+        startActivity(intent);
+    }
+
+    @Override
     protected void onDestroy() {
-        // Releases the database when the Activity closes.
+        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

@@ -14,65 +14,53 @@ import com.example.smartpantrymanager.model.RecipeIngredient;
 import java.util.List;
 import java.util.Locale;
 
-// Displays the complete details of a selected recipe.
+// Displays the details of a selected recipe.
 public class RecipeActivity extends AppCompatActivity {
 
-    // Intent key used to identify the selected recipe.
+    // Intent key
     public static final String EXTRA_RECIPE_ID = "recipe_id";
 
-    // Database connection used to load recipe details.
+    // Database connection
     private PantryDb pantryDb;
 
-    // Recipe detail controls.
+    // UI controls
     private TextView nameText;
     private TextView ingredientsText;
     private TextView stepsText;
-
-    // Database identifier of the selected recipe.
-    private long recipeId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
-        // Prepares the database and screen controls.
+        setTitle("Recipe Details");
+
         pantryDb = new PantryDb(getApplicationContext());
 
         bindViews();
         loadRecipe();
     }
 
-    // Connects Java controls to the recipe layout.
+    // Binds layout controls.
     private void bindViews() {
-        nameText = findViewById(
-                R.id.txtRecipeTitle
-        );
-
-        ingredientsText = findViewById(
-                R.id.txtRecipeIngredients
-        );
-
-        stepsText = findViewById(
-                R.id.txtRecipeSteps
-        );
+        nameText = findViewById(R.id.txtRecipeTitle);
+        ingredientsText = findViewById(R.id.txtRecipeIngredients);
+        stepsText = findViewById(R.id.txtRecipeSteps);
     }
 
-    // Loads the selected recipe from the database.
+    // Loads the selected recipe.
     private void loadRecipe() {
-        recipeId = getIntent().getLongExtra(
+        long recipeId = getIntent().getLongExtra(
                 EXTRA_RECIPE_ID,
                 0
         );
 
-        if (recipeId == 0) {
+        if (recipeId <= 0) {
             showRecipeNotFound();
             return;
         }
 
-        Recipe recipe = pantryDb.getRecipe(
-                recipeId
-        );
+        Recipe recipe = pantryDb.getRecipe(recipeId);
 
         if (recipe == null) {
             showRecipeNotFound();
@@ -82,49 +70,43 @@ public class RecipeActivity extends AppCompatActivity {
         displayRecipe(recipe);
     }
 
-    // Displays the selected recipe information.
+    // Displays the recipe details.
     private void displayRecipe(Recipe recipe) {
         nameText.setText(recipe.getName());
 
         ingredientsText.setText(
-                formatIngredients(
-                        recipe.getIngredients()
-                )
+                formatIngredients(recipe.getIngredients())
         );
 
         stepsText.setText(recipe.getSteps());
     }
 
-    // Formats the ingredient list for the details screen.
+    // Formats the complete ingredient list.
     private String formatIngredients(
             List<RecipeIngredient> ingredients) {
 
         if (ingredients == null || ingredients.isEmpty()) {
-            return getString(
-                    R.string.no_ingredients
-            );
+            return getString(R.string.no_ingredients);
         }
 
-        StringBuilder builder =
-                new StringBuilder();
+        StringBuilder builder = new StringBuilder();
 
         for (RecipeIngredient ingredient : ingredients) {
-            builder.append(
-                    formatIngredient(ingredient)
-            );
+            if (builder.length() > 0) {
+                builder.append("\n");
+            }
 
-            builder.append("\n");
+            builder.append(formatIngredient(ingredient));
         }
 
-        return builder.toString().trim();
+        return builder.toString();
     }
 
-    // Formats one ingredient with its quantity and unit.
+    // Formats one ingredient.
     private String formatIngredient(
             RecipeIngredient ingredient) {
 
-        double quantity =
-                ingredient.getQuantity();
+        double quantity = ingredient.getQuantity();
 
         boolean wholeNumber =
                 Double.compare(
@@ -151,7 +133,7 @@ public class RecipeActivity extends AppCompatActivity {
         );
     }
 
-    // Shows feedback when the selected recipe is unavailable.
+    // Shows missing recipe feedback.
     private void showRecipeNotFound() {
         Toast.makeText(
                 this,
@@ -164,7 +146,7 @@ public class RecipeActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        // Releases the database when the Activity closes.
+        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

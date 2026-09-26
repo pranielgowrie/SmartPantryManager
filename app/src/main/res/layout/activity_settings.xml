@@ -1,19 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- Displays and manages the application's configurable settings. -->
 <ScrollView
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
 
-    <!-- Holds all settings controls. -->
+    <!-- Holds all settings controls in a vertical arrangement. -->
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="16dp">
 
-        <!-- Screen title. -->
+        <!-- Displays the settings screen heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -22,7 +23,7 @@
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-        <!-- Enables or disables expiry alerts. -->
+        <!-- Enables or disables expiry warning notifications. -->
         <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchExpiryAlerts"
                 android:layout_width="match_parent"
@@ -30,7 +31,7 @@
                 android:layout_marginTop="20dp"
                 android:text="@string/expiry_alerts" />
 
-        <!-- Expiry warning period. -->
+        <!-- Accepts the number of days before an item is considered expiring soon. -->
         <EditText
                 android:id="@+id/inputExpiryDays"
                 android:layout_width="match_parent"
@@ -41,7 +42,7 @@
                 android:inputType="number"
                 android:singleLine="true" />
 
-        <!-- Preferred units heading. -->
+        <!-- Displays the preferred measurement system heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -49,14 +50,14 @@
                 android:text="@string/preferred_units"
                 android:textStyle="bold" />
 
-        <!-- Preferred measurement system. -->
+        <!-- Allows the user to select a preferred measurement system. -->
         <Spinner
                 android:id="@+id/spinnerPreferredUnits"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp" />
 
-        <!-- Theme settings heading. -->
+        <!-- Displays the theme settings heading. -->
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -64,14 +65,14 @@
                 android:text="@string/theme_settings"
                 android:textStyle="bold" />
 
-        <!-- Dark mode toggle. -->
+        <!-- Enables or disables the application's dark theme. -->
         <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchDarkMode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/dark_mode" />
 
-        <!-- Saves the selected settings. -->
+        <!-- Validates and saves the selected settings. -->
         <Button
                 android:id="@+id/btnSaveSettings"
                 android:layout_width="match_parent"

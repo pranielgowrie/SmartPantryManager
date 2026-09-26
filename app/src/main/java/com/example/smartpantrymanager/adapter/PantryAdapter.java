@@ -16,11 +16,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-// Displays pantry items and forwards row actions to the Activity.
+// Displays pantry items and handles row actions.
 public class PantryAdapter
         extends RecyclerView.Adapter<PantryAdapter.ItemViewHolder> {
 
-    // Defines the actions available for each pantry item.
+    // Pantry row actions
     public interface ItemListener {
 
         void onEdit(PantryItem item);
@@ -28,26 +28,30 @@ public class PantryAdapter
         void onDelete(PantryItem item);
     }
 
-    // Items currently displayed by the RecyclerView.
-    private final List<PantryItem> items;
+    // Displayed pantry items
+    private final List<PantryItem> items = new ArrayList<>();
 
-    // Sends row actions back to the Activity.
+    // Row action listener
     private final ItemListener listener;
 
     public PantryAdapter(ItemListener listener) {
-        items = new ArrayList<>();
         this.listener = listener;
     }
 
-    // Replaces the displayed items with current database records.
+    // Updates the displayed items.
     public void setItems(List<PantryItem> newItems) {
+        int previousSize = items.size();
+
         items.clear();
 
-        if (newItems != null) {
-            items.addAll(newItems);
+        if (previousSize > 0) {
+            notifyItemRangeRemoved(0, previousSize);
         }
 
-        notifyDataSetChanged();
+        if (newItems != null && !newItems.isEmpty()) {
+            items.addAll(newItems);
+            notifyItemRangeInserted(0, items.size());
+        }
     }
 
     @NonNull
@@ -56,7 +60,6 @@ public class PantryAdapter
             @NonNull ViewGroup parent,
             int viewType) {
 
-        // Creates one pantry row from the XML layout.
         View view = LayoutInflater
                 .from(parent.getContext())
                 .inflate(
@@ -73,9 +76,10 @@ public class PantryAdapter
             @NonNull ItemViewHolder holder,
             int position) {
 
-        // Displays the item at the current list position.
-        PantryItem item = items.get(position);
-        holder.bind(item, listener);
+        holder.bind(
+                items.get(position),
+                listener
+        );
     }
 
     @Override
@@ -83,76 +87,75 @@ public class PantryAdapter
         return items.size();
     }
 
-    // Holds the controls used by one pantry row.
+    // Holds one pantry row.
     public static final class ItemViewHolder
             extends RecyclerView.ViewHolder {
 
+        // Row controls
         private final TextView nameText;
         private final TextView quantityText;
         private final TextView expiryText;
         private final Button editButton;
         private final Button deleteButton;
 
-        public ItemViewHolder(@NonNull View itemView) {
+        public ItemViewHolder(
+                @NonNull View itemView) {
+
             super(itemView);
 
-            // Connects Java controls to the row layout.
-            nameText = itemView.findViewById(
-                    R.id.txtItemName
-            );
+            nameText =
+                    itemView.findViewById(
+                            R.id.txtItemName
+                    );
 
-            quantityText = itemView.findViewById(
-                    R.id.txtItemQuantity
-            );
+            quantityText =
+                    itemView.findViewById(
+                            R.id.txtItemQuantity
+                    );
 
-            expiryText = itemView.findViewById(
-                    R.id.txtItemExpiry
-            );
+            expiryText =
+                    itemView.findViewById(
+                            R.id.txtItemExpiry
+                    );
 
-            editButton = itemView.findViewById(
-                    R.id.btnEdit
-            );
+            editButton =
+                    itemView.findViewById(
+                            R.id.btnEdit
+                    );
 
-            deleteButton = itemView.findViewById(
-                    R.id.btnDelete
-            );
+            deleteButton =
+                    itemView.findViewById(
+                            R.id.btnDelete
+                    );
         }
 
-        // Displays one pantry item and connects its buttons.
+        // Displays one pantry item.
         private void bind(
-                final PantryItem item,
-                final ItemListener listener) {
+                PantryItem item,
+                ItemListener listener) {
 
             nameText.setText(item.getName());
-            quantityText.setText(formatQuantity(item));
+
+            quantityText.setText(
+                    formatQuantity(item)
+            );
+
             displayExpiry(item);
 
-            // Sends the selected item to the edit action.
-            editButton.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (listener != null) {
-                                listener.onEdit(item);
-                            }
-                        }
-                    }
-            );
+            editButton.setOnClickListener(view -> {
+                if (listener != null) {
+                    listener.onEdit(item);
+                }
+            });
 
-            // Sends the selected item to the delete action.
-            deleteButton.setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (listener != null) {
-                                listener.onDelete(item);
-                            }
-                        }
-                    }
-            );
+            deleteButton.setOnClickListener(view -> {
+                if (listener != null) {
+                    listener.onDelete(item);
+                }
+            });
         }
 
-        // Shows the expiry date only when one is available.
+        // Displays the optional expiry date.
         private void displayExpiry(PantryItem item) {
             if (!item.hasExpiry()) {
                 expiryText.setText("");
@@ -170,7 +173,7 @@ public class PantryAdapter
             expiryText.setVisibility(View.VISIBLE);
         }
 
-        // Formats whole and decimal quantities cleanly.
+        // Formats the quantity and unit.
         private String formatQuantity(PantryItem item) {
             double quantity = item.getQuantity();
 
@@ -180,18 +183,13 @@ public class PantryAdapter
                             Math.rint(quantity)
                     ) == 0;
 
-            if (wholeNumber) {
-                return String.format(
-                        Locale.getDefault(),
-                        "%.0f %s",
-                        quantity,
-                        item.getUnit()
-                );
-            }
+            String format = wholeNumber
+                    ? "%.0f %s"
+                    : "%.2f %s";
 
             return String.format(
                     Locale.getDefault(),
-                    "%.2f %s",
+                    format,
                     quantity,
                     item.getUnit()
             );
