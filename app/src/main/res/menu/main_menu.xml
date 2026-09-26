@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- Provides navigation between main screens. -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Opens the pantry screen. -->
+    <item
+            android:id="@+id/menu_pantry"
+            android:icon="@drawable/ic_pantry"
+            android:title="@string/menu_pantry" />
+
+    <!-- Opens the suggested recipes screen. -->
+    <item
+            android:id="@+id/menu_suggestions"
+            android:icon="@drawable/ic_recipe"
+            android:title="@string/menu_suggestions" />
+
+    <!-- Opens the settings screen. -->
+    <item
+            android:id="@+id/menu_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/menu_settings" />
+
+</menu>
