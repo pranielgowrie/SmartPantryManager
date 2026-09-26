@@ -28,6 +28,7 @@ public class ItemFormActivity extends AppCompatActivity {
     private EditText expiryInput;
     private Spinner unitSpinner;
     private Button saveButton;
+    private Button backButton;
 
     // Item being edited
     private PantryItem currentItem;
@@ -36,6 +37,11 @@ public class ItemFormActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_form);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
+        }
 
         pantryDb = new PantryDb(getApplicationContext());
 
@@ -52,9 +58,10 @@ public class ItemFormActivity extends AppCompatActivity {
         expiryInput = findViewById(R.id.inputExpiry);
         unitSpinner = findViewById(R.id.spinnerUnit);
         saveButton = findViewById(R.id.btnSave);
+        backButton = findViewById(R.id.btnBack);
     }
 
-    // Loads the available units.
+    // Loads available units.
     private void setupUnitSpinner() {
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(
@@ -75,9 +82,14 @@ public class ItemFormActivity extends AppCompatActivity {
         saveButton.setOnClickListener(
                 view -> saveItem()
         );
+
+        backButton.setOnClickListener(
+                view -> getOnBackPressedDispatcher()
+                        .onBackPressed()
+        );
     }
 
-    // Loads an existing item when editing.
+    // Loads an item when editing.
     private void loadItem() {
         long itemId = getIntent().getLongExtra(
                 EXTRA_ITEM_ID,
@@ -103,11 +115,12 @@ public class ItemFormActivity extends AppCompatActivity {
     // Displays the selected item.
     private void displayItem(PantryItem item) {
         nameInput.setText(item.getName());
+
         quantityInput.setText(
                 String.valueOf(item.getQuantity())
         );
-        expiryInput.setText(item.getExpiry());
 
+        expiryInput.setText(item.getExpiry());
         selectUnit(item.getUnit());
     }
 
@@ -121,12 +134,12 @@ public class ItemFormActivity extends AppCompatActivity {
              index < unitSpinner.getCount();
              index++) {
 
-            String spinnerUnit =
+            String option =
                     unitSpinner
                             .getItemAtPosition(index)
                             .toString();
 
-            if (spinnerUnit.equalsIgnoreCase(unit)) {
+            if (option.equalsIgnoreCase(unit)) {
                 unitSpinner.setSelection(index);
                 return;
             }
@@ -136,9 +149,7 @@ public class ItemFormActivity extends AppCompatActivity {
     // Reads and validates the form.
     private void saveItem() {
         String name =
-                nameInput.getText()
-                        .toString()
-                        .trim();
+                nameInput.getText().toString().trim();
 
         String quantityText =
                 quantityInput.getText()
@@ -182,13 +193,9 @@ public class ItemFormActivity extends AppCompatActivity {
             saveToDatabase(item);
 
         } catch (IllegalArgumentException exception) {
-            String message = exception.getMessage();
-
             Toast.makeText(
                     this,
-                    message == null
-                            ? getString(R.string.save_failed)
-                            : message,
+                    exception.getMessage(),
                     Toast.LENGTH_SHORT
             ).show();
         }
@@ -204,7 +211,6 @@ public class ItemFormActivity extends AppCompatActivity {
             nameInput.setError(
                     getString(R.string.name_required)
             );
-
             nameInput.requestFocus();
             return false;
         }
@@ -213,7 +219,6 @@ public class ItemFormActivity extends AppCompatActivity {
             quantityInput.setError(
                     getString(R.string.quantity_required)
             );
-
             quantityInput.requestFocus();
             return false;
         }
@@ -237,12 +242,12 @@ public class ItemFormActivity extends AppCompatActivity {
         return true;
     }
 
-    // Parses and validates the quantity.
-    private Double parseQuantity(String quantityText) {
+    // Parses the entered quantity.
+    private Double parseQuantity(String value) {
         double quantity;
 
         try {
-            quantity = Double.parseDouble(quantityText);
+            quantity = Double.parseDouble(value);
         } catch (NumberFormatException exception) {
             showQuantityError();
             return null;
@@ -261,7 +266,7 @@ public class ItemFormActivity extends AppCompatActivity {
         return quantity;
     }
 
-    // Shows quantity validation feedback.
+    // Shows quantity feedback.
     private void showQuantityError() {
         quantityInput.setError(
                 getString(R.string.invalid_quantity)
@@ -312,8 +317,13 @@ public class ItemFormActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        getOnBackPressedDispatcher().onBackPressed();
+        return true;
+    }
+
+    @Override
     protected void onDestroy() {
-        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

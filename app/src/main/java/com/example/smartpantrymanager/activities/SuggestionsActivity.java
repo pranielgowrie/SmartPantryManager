@@ -2,17 +2,13 @@ package com.example.smartpantrymanager.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.smartpantrymanager.MainActivity;
 import com.example.smartpantrymanager.R;
 import com.example.smartpantrymanager.adapter.RecipeAdapter;
 import com.example.smartpantrymanager.database.PantryDb;
@@ -23,7 +19,7 @@ import com.example.smartpantrymanager.util.RecipeMatcher;
 import java.util.List;
 
 // Displays recipes that fully match the pantry.
-public class SuggestionsActivity extends AppCompatActivity
+public class SuggestionsActivity extends BaseDrawerActivity
         implements RecipeAdapter.RecipeListener {
 
     // Database connection
@@ -32,8 +28,9 @@ public class SuggestionsActivity extends AppCompatActivity
     // UI controls
     private RecyclerView recipeList;
     private TextView emptyText;
+    private Button backButton;
 
-    // Recipe list adapter
+    // Recipe adapter
     private RecipeAdapter recipeAdapter;
 
     @Override
@@ -41,19 +38,19 @@ public class SuggestionsActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_suggestions);
 
-        setTitle("Suggested Recipes");
+        setTitle(R.string.suggestions_title);
 
         pantryDb = new PantryDb(getApplicationContext());
 
+        setupNavigationDrawer();
         bindViews();
         setupRecipeList();
+        setListeners();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        // Refreshes matches after pantry changes.
         loadSuggestions();
     }
 
@@ -61,6 +58,7 @@ public class SuggestionsActivity extends AppCompatActivity
     private void bindViews() {
         recipeList = findViewById(R.id.recipeList);
         emptyText = findViewById(R.id.txtSuggestionsEmpty);
+        backButton = findViewById(R.id.btnBack);
     }
 
     // Configures the recipe list.
@@ -72,6 +70,14 @@ public class SuggestionsActivity extends AppCompatActivity
         );
 
         recipeList.setAdapter(recipeAdapter);
+    }
+
+    // Connects screen actions.
+    private void setListeners() {
+        backButton.setOnClickListener(
+                view -> getOnBackPressedDispatcher()
+                        .onBackPressed()
+        );
     }
 
     // Loads strictly matched recipes.
@@ -92,13 +98,12 @@ public class SuggestionsActivity extends AppCompatActivity
         updateEmptyState(matches);
     }
 
-    // Updates the empty list message.
+    // Updates the empty state.
     private void updateEmptyState(
             List<Recipe> matches) {
 
         boolean hasMatches =
-                matches != null
-                        && !matches.isEmpty();
+                matches != null && !matches.isEmpty();
 
         recipeList.setVisibility(
                 hasMatches ? View.VISIBLE : View.GONE
@@ -115,7 +120,6 @@ public class SuggestionsActivity extends AppCompatActivity
             return;
         }
 
-        // Opens the selected recipe.
         Intent intent = new Intent(
                 this,
                 RecipeActivity.class
@@ -130,56 +134,7 @@ public class SuggestionsActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(
-                R.menu.main_menu,
-                menu
-        );
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(
-            @NonNull MenuItem item) {
-
-        int itemId = item.getItemId();
-
-        if (itemId == R.id.menu_pantry) {
-            openScreen(MainActivity.class);
-            return true;
-        }
-
-        if (itemId == R.id.menu_suggestions) {
-            return true;
-        }
-
-        if (itemId == R.id.menu_settings) {
-            openScreen(SettingsActivity.class);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Opens a navigation destination.
-    private void openScreen(Class<?> destination) {
-        Intent intent = new Intent(
-                this,
-                destination
-        );
-
-        intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
-        );
-
-        startActivity(intent);
-    }
-
-    @Override
     protected void onDestroy() {
-        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

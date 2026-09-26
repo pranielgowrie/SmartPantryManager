@@ -19,6 +19,7 @@
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
     <string name="delete_ingredient">Delete Ingredient</string>
     <string name="delete_confirmation">Delete %1$s from your pantry?</string>
 
@@ -48,6 +49,7 @@
     <string name="suggestions_empty">No recipes match your pantry yet. Add more ingredients.</string>
 
     <!-- Recipe details -->
+    <string name="recipe_details_title">Recipe Details</string>
     <string name="ingredients_title">Ingredients</string>
     <string name="method_title">Preparation Method</string>
     <string name="ingredient_count">%1$d ingredients</string>
@@ -68,12 +70,10 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="theme_settings">Theme Settings</string>
 
-    <!-- Bottom navigation -->
-    <string name="nav_pantry">Pantry</string>
-    <string name="nav_suggestions">Recipes</string>
-    <string name="nav_settings">Settings</string>
-
-    <!-- Toolbar menu -->
+    <!-- Navigation -->
+    <string name="navigation_title">Smart Pantry Manager</string>
+    <string name="open_navigation">Open navigation</string>
+    <string name="close_navigation">Close navigation</string>
     <string name="menu_pantry">Pantry</string>
     <string name="menu_suggestions">Suggested Recipes</string>
     <string name="menu_settings">Settings</string>

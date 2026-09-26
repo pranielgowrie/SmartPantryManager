@@ -1,67 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
+<!-- Holds scrollable recipe details and a fixed Back button. -->
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical"
+        tools:ignore="VisualLintBounds">
 
-    <!-- Displays the selected recipe details. -->
-    <LinearLayout
+    <!-- Scrollable recipe content. -->
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+        <!-- Holds all recipe details. -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <!-- Recipe name. -->
+            <TextView
+                    android:id="@+id/txtRecipeTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="28sp"
+                    android:textStyle="bold"
+                    tools:text="Scrambled Eggs" />
+
+            <!-- Ingredients heading. -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/ingredients_title"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            <!-- Required ingredients. -->
+            <TextView
+                    android:id="@+id/txtRecipeIngredients"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:textSize="16sp"
+                    tools:text="Eggs 2 items&#10;Butter 10 g" />
+
+            <!-- Preparation heading. -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/method_title"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+            <!-- Preparation instructions. -->
+            <TextView
+                    android:id="@+id/txtRecipeSteps"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:lineSpacingExtra="4dp"
+                    android:paddingBottom="16dp"
+                    android:textSize="16sp"
+                    tools:text="Beat the eggs. Melt the butter in a pan. Cook while stirring until set." />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Returns to the previous screen. -->
+    <Button
+            android:id="@+id/btnBack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_margin="16dp"
+            android:minHeight="48dp"
+            android:text="@string/back"
+            android:textAllCaps="false"
+            android:textColor="@android:color/black"
+            tools:ignore="VisualLintButtonSize" />
 
-        <!-- Displays the recipe title. -->
-        <TextView
-                android:id="@+id/txtRecipeTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-        <!-- Ingredients section heading. -->
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/ingredients_title"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        <!-- Displays the recipe ingredients. -->
-        <TextView
-                android:id="@+id/txtRecipeIngredients"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="4dp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="16sp" />
-
-        <!-- Preparation method heading. -->
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/method_title"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-        <!-- Displays the preparation steps. -->
-        <TextView
-                android:id="@+id/txtRecipeSteps"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:lineSpacingExtra="6dp"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="16sp" />
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

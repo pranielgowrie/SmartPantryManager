@@ -1,6 +1,7 @@
 package com.example.smartpantrymanager.activities;
 
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,11 +15,12 @@ import com.example.smartpantrymanager.model.RecipeIngredient;
 import java.util.List;
 import java.util.Locale;
 
-// Displays the details of a selected recipe.
+// Displays the selected recipe.
 public class RecipeActivity extends AppCompatActivity {
 
     // Intent key
-    public static final String EXTRA_RECIPE_ID = "recipe_id";
+    public static final String EXTRA_RECIPE_ID =
+            "recipe_id";
 
     // Database connection
     private PantryDb pantryDb;
@@ -27,25 +29,44 @@ public class RecipeActivity extends AppCompatActivity {
     private TextView nameText;
     private TextView ingredientsText;
     private TextView stepsText;
+    private Button backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recipe);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
+        }
+
         setTitle("Recipe Details");
 
         pantryDb = new PantryDb(getApplicationContext());
 
         bindViews();
+        setListeners();
         loadRecipe();
     }
 
     // Binds layout controls.
     private void bindViews() {
         nameText = findViewById(R.id.txtRecipeTitle);
-        ingredientsText = findViewById(R.id.txtRecipeIngredients);
+
+        ingredientsText =
+                findViewById(R.id.txtRecipeIngredients);
+
         stepsText = findViewById(R.id.txtRecipeSteps);
+        backButton = findViewById(R.id.btnBack);
+    }
+
+    // Connects screen actions.
+    private void setListeners() {
+        backButton.setOnClickListener(
+                view -> getOnBackPressedDispatcher()
+                        .onBackPressed()
+        );
     }
 
     // Loads the selected recipe.
@@ -75,17 +96,21 @@ public class RecipeActivity extends AppCompatActivity {
         nameText.setText(recipe.getName());
 
         ingredientsText.setText(
-                formatIngredients(recipe.getIngredients())
+                formatIngredients(
+                        recipe.getIngredients()
+                )
         );
 
         stepsText.setText(recipe.getSteps());
     }
 
-    // Formats the complete ingredient list.
+    // Formats the ingredient list.
     private String formatIngredients(
             List<RecipeIngredient> ingredients) {
 
-        if (ingredients == null || ingredients.isEmpty()) {
+        if (ingredients == null
+                || ingredients.isEmpty()) {
+
             return getString(R.string.no_ingredients);
         }
 
@@ -96,7 +121,9 @@ public class RecipeActivity extends AppCompatActivity {
                 builder.append("\n");
             }
 
-            builder.append(formatIngredient(ingredient));
+            builder.append(
+                    formatIngredient(ingredient)
+            );
         }
 
         return builder.toString();
@@ -114,19 +141,13 @@ public class RecipeActivity extends AppCompatActivity {
                         Math.rint(quantity)
                 ) == 0;
 
-        if (wholeNumber) {
-            return String.format(
-                    Locale.getDefault(),
-                    "%s %.0f %s",
-                    ingredient.getName(),
-                    quantity,
-                    ingredient.getUnit()
-            );
-        }
+        String format = wholeNumber
+                ? "%s %.0f %s"
+                : "%s %.2f %s";
 
         return String.format(
                 Locale.getDefault(),
-                "%s %.2f %s",
+                format,
                 ingredient.getName(),
                 quantity,
                 ingredient.getUnit()
@@ -145,8 +166,13 @@ public class RecipeActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        getOnBackPressedDispatcher().onBackPressed();
+        return true;
+    }
+
+    @Override
     protected void onDestroy() {
-        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

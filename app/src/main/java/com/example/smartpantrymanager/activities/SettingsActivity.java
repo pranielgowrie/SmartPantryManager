@@ -1,22 +1,16 @@
 package com.example.smartpantrymanager.activities;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.SwitchCompat;
 
-import com.example.smartpantrymanager.MainActivity;
 import com.example.smartpantrymanager.R;
 import com.example.smartpantrymanager.database.PantryDb;
 import com.google.android.material.switchmaterial.SwitchMaterial;
@@ -24,7 +18,7 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 import java.util.Locale;
 
 // Manages application settings.
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends BaseDrawerActivity {
 
     // Database keys
     private static final String KEY_ALERTS = "expiry_alerts";
@@ -47,16 +41,18 @@ public class SettingsActivity extends AppCompatActivity {
     private EditText daysInput;
     private Spinner unitsSpinner;
     private Button saveButton;
+    private Button backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        setTitle("Settings");
+        setTitle(R.string.settings_title);
 
         pantryDb = new PantryDb(getApplicationContext());
 
+        setupNavigationDrawer();
         bindViews();
         setupUnitsSpinner();
         loadSettings();
@@ -80,9 +76,12 @@ public class SettingsActivity extends AppCompatActivity {
 
         saveButton =
                 findViewById(R.id.btnSaveSettings);
+
+        backButton =
+                findViewById(R.id.btnBack);
     }
 
-    // Loads unit options.
+    // Loads available unit options.
     private void setupUnitsSpinner() {
         ArrayAdapter<CharSequence> adapter =
                 ArrayAdapter.createFromResource(
@@ -100,20 +99,14 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Loads saved settings.
     private void loadSettings() {
-        String alertsValue = pantryDb.getSetting(
-                KEY_ALERTS,
-                "true"
-        );
+        String alertsValue =
+                pantryDb.getSetting(KEY_ALERTS, "true");
 
-        String daysValue = pantryDb.getSetting(
-                KEY_DAYS,
-                "3"
-        );
+        String daysValue =
+                pantryDb.getSetting(KEY_DAYS, "3");
 
-        String unitsValue = pantryDb.getSetting(
-                KEY_UNITS,
-                "metric"
-        );
+        String unitsValue =
+                pantryDb.getSetting(KEY_UNITS, "metric");
 
         alertsSwitch.setChecked(
                 Boolean.parseBoolean(alertsValue)
@@ -150,22 +143,27 @@ public class SettingsActivity extends AppCompatActivity {
              index < unitsSpinner.getCount();
              index++) {
 
-            String currentValue =
+            String option =
                     unitsSpinner
                             .getItemAtPosition(index)
                             .toString();
 
-            if (currentValue.equalsIgnoreCase(preference)) {
+            if (option.equalsIgnoreCase(preference)) {
                 unitsSpinner.setSelection(index);
                 return;
             }
         }
     }
 
-    // Connects control actions.
+    // Connects screen actions.
     private void setListeners() {
         saveButton.setOnClickListener(
                 view -> saveSettings()
+        );
+
+        backButton.setOnClickListener(
+                view -> getOnBackPressedDispatcher()
+                        .onBackPressed()
         );
 
         darkModeSwitch.setOnCheckedChangeListener(
@@ -176,17 +174,14 @@ public class SettingsActivity extends AppCompatActivity {
         );
     }
 
-    // Saves the theme preference.
+    // Saves the selected theme.
     private void saveThemePreference(
             boolean darkModeEnabled) {
 
-        SharedPreferences preferences =
-                getSharedPreferences(
-                        PREFS_NAME,
-                        MODE_PRIVATE
-                );
-
-        preferences.edit()
+        getSharedPreferences(
+                PREFS_NAME,
+                MODE_PRIVATE
+        ).edit()
                 .putBoolean(
                         KEY_DARK_MODE,
                         darkModeEnabled
@@ -196,11 +191,11 @@ public class SettingsActivity extends AppCompatActivity {
 
     // Applies the selected theme.
     private void applyTheme(boolean darkModeEnabled) {
-        int nightMode = darkModeEnabled
+        int mode = darkModeEnabled
                 ? AppCompatDelegate.MODE_NIGHT_YES
                 : AppCompatDelegate.MODE_NIGHT_NO;
 
-        AppCompatDelegate.setDefaultNightMode(nightMode);
+        AppCompatDelegate.setDefaultNightMode(mode);
     }
 
     // Validates and saves settings.
@@ -211,11 +206,9 @@ public class SettingsActivity extends AppCompatActivity {
                         .trim();
 
         if (daysText.isEmpty()) {
-            daysInput.setError(
-                    getString(R.string.expiry_days_required)
+            showDaysError(
+                    R.string.expiry_days_required
             );
-
-            daysInput.requestFocus();
             return;
         }
 
@@ -224,25 +217,27 @@ public class SettingsActivity extends AppCompatActivity {
         try {
             warningDays = Integer.parseInt(daysText);
         } catch (NumberFormatException exception) {
-            showDaysError();
+            showDaysError(
+                    R.string.invalid_expiry_days
+            );
             return;
         }
 
         if (warningDays < 1) {
-            showDaysError();
+            showDaysError(
+                    R.string.invalid_expiry_days
+            );
             return;
         }
 
         Object selectedUnits =
                 unitsSpinner.getSelectedItem();
 
-        String unitPreference =
-                selectedUnits == null
-                        ? "metric"
-                        : selectedUnits
-                        .toString()
-                        .trim()
-                        .toLowerCase(Locale.ROOT);
+        String units = selectedUnits == null
+                ? "metric"
+                : selectedUnits.toString()
+                .trim()
+                .toLowerCase(Locale.ROOT);
 
         pantryDb.saveSetting(
                 KEY_ALERTS,
@@ -256,7 +251,7 @@ public class SettingsActivity extends AppCompatActivity {
 
         pantryDb.saveSetting(
                 KEY_UNITS,
-                unitPreference
+                units
         );
 
         Toast.makeText(
@@ -267,67 +262,13 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     // Shows warning-days feedback.
-    private void showDaysError() {
-        daysInput.setError(
-                getString(R.string.invalid_expiry_days)
-        );
-
+    private void showDaysError(int message) {
+        daysInput.setError(getString(message));
         daysInput.requestFocus();
-    }
-
-    // Creates the navigation menu.
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(
-                R.menu.main_menu,
-                menu
-        );
-
-        return true;
-    }
-
-    // Handles navigation selections.
-    @Override
-    public boolean onOptionsItemSelected(
-            @NonNull MenuItem item) {
-
-        int itemId = item.getItemId();
-
-        if (itemId == R.id.menu_pantry) {
-            openScreen(MainActivity.class);
-            return true;
-        }
-
-        if (itemId == R.id.menu_suggestions) {
-            openScreen(SuggestionsActivity.class);
-            return true;
-        }
-
-        if (itemId == R.id.menu_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Opens a selected screen.
-    private void openScreen(Class<?> destination) {
-        Intent intent = new Intent(
-                this,
-                destination
-        );
-
-        intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
-        );
-
-        startActivity(intent);
     }
 
     @Override
     protected void onDestroy() {
-        // Closes the database connection.
         if (pantryDb != null) {
             pantryDb.close();
         }

@@ -1,86 +1,122 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
+<!-- Holds the scrollable item form and fixed Back button. -->
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="true">
+        android:orientation="vertical"
+        tools:ignore="VisualLintBounds,VisualLintTextFieldSize">
 
-    <!-- Holds the pantry item form controls. -->
-    <LinearLayout
+    <!-- Scrollable form content. -->
+    <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:fillViewport="true">
+
+        <!-- Holds all form controls. -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+            <!-- Screen heading. -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_ingredient"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+            <!-- Screen description. -->
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="@string/pantry_subtitle" />
+
+            <!-- Ingredient name input. -->
+            <EditText
+                    android:id="@+id/inputName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:hint="@string/ingredient_name"
+                    android:importantForAutofill="no"
+                    android:inputType="textCapWords"
+                    android:minHeight="48dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:singleLine="true"
+                    tools:ignore="Autofill" />
+
+            <!-- Ingredient quantity input. -->
+            <EditText
+                    android:id="@+id/inputQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/quantity"
+                    android:importantForAutofill="no"
+                    android:inputType="numberDecimal"
+                    android:minHeight="48dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:singleLine="true"
+                    tools:ignore="Autofill" />
+
+            <!-- Ingredient unit selector. -->
+            <Spinner
+                    android:id="@+id/spinnerUnit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:minHeight="48dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp" />
+
+            <!-- Optional expiry date input. -->
+            <EditText
+                    android:id="@+id/inputExpiry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:hint="@string/expiry_hint"
+                    android:importantForAutofill="no"
+                    android:inputType="date"
+                    android:minHeight="48dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:singleLine="true"
+                    tools:ignore="Autofill" />
+
+            <!-- Saves the pantry item. -->
+            <Button
+                    android:id="@+id/btnSave"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:minHeight="48dp"
+                    android:text="@string/save_item"
+                    android:textAllCaps="false"
+                    tools:ignore="VisualLintButtonSize" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <!-- Returns to the previous screen. -->
+    <Button
+            android:id="@+id/btnBack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_margin="16dp"
+            android:minHeight="48dp"
+            android:text="@string/back"
+            android:textAllCaps="false"
+            tools:ignore="VisualLintButtonSize" />
 
-        <!-- Screen title. -->
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/add_ingredient"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="28sp"
-                android:textStyle="bold" />
-
-        <!-- Screen description. -->
-        <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="@string/pantry_subtitle"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="15sp" />
-
-        <!-- Ingredient name input. -->
-        <EditText
-                android:id="@+id/inputName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:hint="@string/ingredient_name"
-                android:importantForAutofill="no"
-                android:inputType="textCapWords"
-                android:maxLength="60"
-                android:singleLine="true" />
-
-        <!-- Ingredient quantity input. -->
-        <EditText
-                android:id="@+id/inputQuantity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/quantity"
-                android:importantForAutofill="no"
-                android:inputType="numberDecimal"
-                android:singleLine="true" />
-
-        <!-- Measurement unit selection. -->
-        <Spinner
-                android:id="@+id/spinnerUnit"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp" />
-
-        <!-- Optional expiry date input. -->
-        <EditText
-                android:id="@+id/inputExpiry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:hint="@string/expiry_hint"
-                android:importantForAutofill="no"
-                android:inputType="date"
-                android:singleLine="true" />
-
-        <!-- Saves the pantry item. -->
-        <Button
-                android:id="@+id/btnSave"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/save_item"
-                android:textAllCaps="false" />
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>

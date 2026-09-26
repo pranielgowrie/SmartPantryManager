@@ -2,22 +2,17 @@ package com.example.smartpantrymanager;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.smartpantrymanager.activities.BaseDrawerActivity;
 import com.example.smartpantrymanager.activities.ItemFormActivity;
-import com.example.smartpantrymanager.activities.SettingsActivity;
-import com.example.smartpantrymanager.activities.SuggestionsActivity;
 import com.example.smartpantrymanager.adapter.PantryAdapter;
 import com.example.smartpantrymanager.database.PantryDb;
 import com.example.smartpantrymanager.model.PantryItem;
@@ -25,7 +20,7 @@ import com.example.smartpantrymanager.model.PantryItem;
 import java.util.List;
 
 // Displays and manages pantry items.
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends BaseDrawerActivity
         implements PantryAdapter.ItemListener {
 
     // Database connection
@@ -35,6 +30,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView pantryList;
     private TextView emptyText;
     private Button addButton;
+    private Button backButton;
 
     // Pantry adapter
     private PantryAdapter pantryAdapter;
@@ -44,10 +40,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setTitle("Pantry");
+        setTitle(R.string.pantry_title);
 
         pantryDb = new PantryDb(getApplicationContext());
 
+        setupNavigationDrawer();
         bindViews();
         setupPantryList();
         setListeners();
@@ -57,7 +54,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        // Refreshes the pantry.
+        // Refreshes the pantry list.
         loadPantryItems();
     }
 
@@ -66,6 +63,7 @@ public class MainActivity extends AppCompatActivity
         pantryList = findViewById(R.id.pantryList);
         emptyText = findViewById(R.id.txtPantryEmpty);
         addButton = findViewById(R.id.btnAdd);
+        backButton = findViewById(R.id.btnBack);
     }
 
     // Configures the pantry list.
@@ -83,6 +81,11 @@ public class MainActivity extends AppCompatActivity
     private void setListeners() {
         addButton.setOnClickListener(
                 view -> openItemForm(0)
+        );
+
+        backButton.setOnClickListener(
+                view -> getOnBackPressedDispatcher()
+                        .onBackPressed()
         );
     }
 
@@ -113,7 +116,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onEdit(PantryItem item) {
-        if (!isValidItem(item)) {
+        if (item == null || item.getId() <= 0) {
             return;
         }
 
@@ -122,16 +125,34 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDelete(PantryItem item) {
-        if (!isValidItem(item)) {
+        if (item == null || item.getId() <= 0) {
             return;
         }
 
         showDeleteConfirmation(item);
     }
 
-    // Checks whether an item is valid.
-    private boolean isValidItem(PantryItem item) {
-        return item != null && item.getId() > 0;
+    // Shows the delete confirmation.
+    private void showDeleteConfirmation(
+            PantryItem item) {
+
+        String message = getString(
+                R.string.delete_confirmation,
+                item.getName()
+        );
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_ingredient)
+                .setMessage(message)
+                .setPositiveButton(
+                        R.string.delete,
+                        (dialog, which) -> deleteItem(item)
+                )
+                .setNegativeButton(
+                        R.string.cancel,
+                        null
+                )
+                .show();
     }
 
     // Opens the add or edit form.
@@ -151,100 +172,24 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-    // Confirms item deletion.
-    private void showDeleteConfirmation(
-            PantryItem item) {
-
-        String message =
-                "Delete " + item.getName()
-                        + " from your pantry?";
-
-        new AlertDialog.Builder(this)
-                .setTitle("Delete Ingredient")
-                .setMessage(message)
-                .setPositiveButton(
-                        "Delete",
-                        (dialog, which) -> deleteItem(item)
-                )
-                .setNegativeButton(
-                        "Cancel",
-                        null
-                )
-                .show();
-    }
-
     // Deletes the selected item.
     private void deleteItem(PantryItem item) {
         boolean deleted =
                 pantryDb.deleteItem(item.getId());
 
-        if (!deleted) {
-            Toast.makeText(
-                    this,
-                    "Unable to delete ingredient.",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            return;
-        }
+        int messageId = deleted
+                ? R.string.item_deleted
+                : R.string.delete_failed;
 
         Toast.makeText(
                 this,
-                "Ingredient deleted.",
+                messageId,
                 Toast.LENGTH_SHORT
         ).show();
 
-        loadPantryItems();
-    }
-
-    // Creates the navigation menu.
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(
-                R.menu.main_menu,
-                menu
-        );
-
-        return true;
-    }
-
-    // Handles navigation selections.
-    @Override
-    public boolean onOptionsItemSelected(
-            @NonNull MenuItem item) {
-
-        int itemId = item.getItemId();
-
-        if (itemId == R.id.menu_pantry) {
-            return true;
+        if (deleted) {
+            loadPantryItems();
         }
-
-        if (itemId == R.id.menu_suggestions) {
-            openScreen(SuggestionsActivity.class);
-            return true;
-        }
-
-        if (itemId == R.id.menu_settings) {
-            openScreen(SettingsActivity.class);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Opens a selected screen.
-    private void openScreen(Class<?> destination) {
-        Intent intent = new Intent(
-                this,
-                destination
-        );
-
-        intent.addFlags(
-                Intent.FLAG_ACTIVITY_CLEAR_TOP
-                        | Intent.FLAG_ACTIVITY_SINGLE_TOP
-        );
-
-        startActivity(intent);
     }
 
     @Override
