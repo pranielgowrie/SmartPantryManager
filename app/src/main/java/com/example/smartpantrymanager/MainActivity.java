@@ -1,6 +1,5 @@
 package com.example.smartpantrymanager;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -37,7 +36,7 @@ public class MainActivity extends AppCompatActivity
     private TextView emptyText;
     private Button addButton;
 
-    // Pantry list adapter
+    // Pantry adapter
     private PantryAdapter pantryAdapter;
 
     @Override
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        // Refreshes the pantry after changes.
+        // Refreshes the pantry.
         loadPantryItems();
     }
 
@@ -87,15 +86,16 @@ public class MainActivity extends AppCompatActivity
         );
     }
 
-    // Loads current pantry items.
+    // Loads pantry items.
     private void loadPantryItems() {
-        List<PantryItem> items = pantryDb.getItems();
+        List<PantryItem> items =
+                pantryDb.getItems();
 
         pantryAdapter.setItems(items);
         updateEmptyState(items);
     }
 
-    // Updates the empty pantry message.
+    // Updates the empty state.
     private void updateEmptyState(
             List<PantryItem> items) {
 
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onEdit(PantryItem item) {
-        if (item == null || item.getId() <= 0) {
+        if (!isValidItem(item)) {
             return;
         }
 
@@ -122,11 +122,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onDelete(PantryItem item) {
-        if (item == null || item.getId() <= 0) {
+        if (!isValidItem(item)) {
             return;
         }
 
         showDeleteConfirmation(item);
+    }
+
+    // Checks whether an item is valid.
+    private boolean isValidItem(PantryItem item) {
+        return item != null && item.getId() > 0;
     }
 
     // Opens the add or edit form.
@@ -150,12 +155,13 @@ public class MainActivity extends AppCompatActivity
     private void showDeleteConfirmation(
             PantryItem item) {
 
+        String message =
+                "Delete " + item.getName()
+                        + " from your pantry?";
+
         new AlertDialog.Builder(this)
                 .setTitle("Delete Ingredient")
-                .setMessage(
-                        "Delete " + item.getName()
-                                + " from your pantry?"
-                )
+                .setMessage(message)
                 .setPositiveButton(
                         "Delete",
                         (dialog, which) -> deleteItem(item)

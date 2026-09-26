@@ -2,11 +2,11 @@ package com.example.smartpantrymanager.util;
 
 import java.util.Locale;
 
-/**
- * Normalizes and converts supported measurement units.
- */
+// Normalizes and converts supported units.
+@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public final class UnitConverter {
 
+    // Unit categories
     private static final String MASS = "mass";
     private static final String VOLUME = "volume";
     private static final String COUNT = "count";
@@ -15,14 +15,14 @@ public final class UnitConverter {
         // Prevents utility class instances.
     }
 
+    // Normalizes unit names.
     public static String normalize(String unit) {
         if (unit == null) {
             return "";
         }
 
-        String cleanedUnit = unit
-                .trim()
-                .toLowerCase(Locale.ROOT);
+        String cleanedUnit =
+                unit.trim().toLowerCase(Locale.ROOT);
 
         switch (cleanedUnit) {
             case "gram":
@@ -63,6 +63,7 @@ public final class UnitConverter {
         }
     }
 
+    // Checks whether a unit is supported.
     public static boolean isSupported(String unit) {
         String normalizedUnit = normalize(unit);
 
@@ -81,6 +82,7 @@ public final class UnitConverter {
         }
     }
 
+    // Checks whether two units are compatible.
     public static boolean canConvert(
             String firstUnit,
             String secondUnit) {
@@ -92,6 +94,7 @@ public final class UnitConverter {
                 && firstType.equals(secondType);
     }
 
+    // Converts a quantity between compatible units.
     public static double convert(
             double quantity,
             String fromUnit,
@@ -108,10 +111,8 @@ public final class UnitConverter {
             );
         }
 
-        double baseQuantity = toBase(
-                quantity,
-                sourceUnit
-        );
+        double baseQuantity =
+                toBase(quantity, sourceUnit);
 
         return fromBase(
                 baseQuantity,
@@ -119,6 +120,7 @@ public final class UnitConverter {
         );
     }
 
+    // Converts a quantity to its base unit.
     private static double toBase(
             double quantity,
             String unit) {
@@ -126,13 +128,13 @@ public final class UnitConverter {
         switch (unit) {
             case "kg":
             case "l":
-                return quantity * 1000;
+                return quantity * 1000.0;
 
             case "tbsp":
-                return quantity * 15;
+                return quantity * 15.0;
 
             case "tsp":
-                return quantity * 5;
+                return quantity * 5.0;
 
             case "g":
             case "ml":
@@ -146,6 +148,7 @@ public final class UnitConverter {
         }
     }
 
+    // Converts a base quantity to the target unit.
     private static double fromBase(
             double quantity,
             String unit) {
@@ -153,13 +156,13 @@ public final class UnitConverter {
         switch (unit) {
             case "kg":
             case "l":
-                return quantity / 1000;
+                return quantity / 1000.0;
 
             case "tbsp":
-                return quantity / 15;
+                return quantity / 15.0;
 
             case "tsp":
-                return quantity / 5;
+                return quantity / 5.0;
 
             case "g":
             case "ml":
@@ -173,6 +176,7 @@ public final class UnitConverter {
         }
     }
 
+    // Returns the unit category.
     private static String getType(String unit) {
         String normalizedUnit = normalize(unit);
 
@@ -195,11 +199,14 @@ public final class UnitConverter {
         }
     }
 
+    // Validates a conversion quantity.
     private static void validateQuantity(double quantity) {
-        if (Double.isNaN(quantity)
-                || Double.isInfinite(quantity)
-                || quantity < 0) {
+        boolean invalid =
+                Double.isNaN(quantity)
+                        || Double.isInfinite(quantity)
+                        || quantity < 0;
 
+        if (invalid) {
             throw new IllegalArgumentException(
                     "Quantity must be a valid non-negative number."
             );

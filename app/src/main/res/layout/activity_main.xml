@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
+<!-- Displays and manages the pantry inventory. -->
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -7,57 +8,27 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-    <!-- Screen title -->
+    <!-- Displays the pantry heading. -->
     <TextView
-            android:id="@+id/txtPantryTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/pantry_title"
-            android:textColor="?android:attr/textColorPrimary"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-    <!-- Screen subtitle -->
+    <!-- Displays feedback when the pantry is empty. -->
     <TextView
-            android:id="@+id/txtPantrySubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/pantry_subtitle"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="15sp" />
-
-    <!-- Search ingredients -->
-    <androidx.appcompat.widget.SearchView
-            android:id="@+id/searchIngredients"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:queryHint="@string/search_hint" />
-
-    <!-- Add new ingredient -->
-    <Button
-            android:id="@+id/btnAdd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:text="@string/add_ingredient"
-            android:textAllCaps="false" />
-
-    <!-- Empty pantry message -->
-    <TextView
-            android:id="@+id/txtEmpty"
+            android:id="@+id/txtPantryEmpty"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginTop="16dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:padding="24dp"
-            android:text="@string/pantry_empty"
-            android:textColor="?android:attr/textColorSecondary"
-            android:textSize="16sp" />
+            android:text="@string/pantry_empty_message"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:visibility="gone" />
 
-    <!-- Pantry items -->
+    <!-- Displays pantry items. -->
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pantryList"
             android:layout_width="match_parent"
@@ -65,8 +36,15 @@
             android:layout_marginTop="16dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            android:paddingBottom="8dp"
-            android:scrollbars="vertical"
-            android:visibility="gone" />
+            android:paddingBottom="8dp" />
+
+    <!-- Opens the ingredient form. -->
+    <Button
+            android:id="@+id/btnAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/add_ingredient"
+            android:textAllCaps="false" />
 
 </LinearLayout>

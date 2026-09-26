@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<vector
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Displays the pantry basket icon. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
         android:width="24dp"
         android:height="24dp"
         android:viewportWidth="24"
         android:viewportHeight="24">
 
-    <!-- Pantry basket icon -->
+    <!-- Draws the basket shape. -->
     <path
             android:fillColor="#00C6A7"
-            android:pathData="M7,4V2H9V4H15V2H17V4H20V6H18.5L17.1,20H6.9L5.5,6H4V4H7ZM7.7,6L8.9,18H15.1L16.3,6H7.7ZM10,8H12V16H10V8ZM13,8H15V16H13V8Z"/>
+            android:pathData="M7,4V2H9V4H15V2H17V4H20V6H18.5L17.1,20H6.9L5.5,6H4V4H7ZM7.7,6L8.9,18H15.1L16.3,6H7.7ZM10,8H12V16H10V8ZM13,8H15V16H13V8Z" />
 
 </vector>

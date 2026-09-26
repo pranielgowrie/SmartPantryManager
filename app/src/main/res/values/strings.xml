@@ -2,13 +2,15 @@
 
 <resources>
 
-    <!-- Application name -->
+    <!-- Application -->
     <string name="app_name">Smart Pantry Manager</string>
 
     <!-- Pantry screen -->
     <string name="pantry_title">My Pantry</string>
     <string name="pantry_subtitle">Track the ingredients available at home.</string>
     <string name="pantry_empty">Your pantry is empty. Add an ingredient to get started.</string>
+    <string name="pantry_empty_message">Your pantry is empty. Add an ingredient to begin.</string>
+    <string name="search_hint">Search ingredients</string>
 
     <!-- Pantry actions -->
     <string name="add_ingredient">Add Ingredient</string>
@@ -16,8 +18,11 @@
     <string name="save_item">Save Item</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete_ingredient">Delete Ingredient</string>
+    <string name="delete_confirmation">Delete %1$s from your pantry?</string>
 
-    <!-- Pantry item fields -->
+    <!-- Pantry fields -->
     <string name="ingredient_name">Ingredient name</string>
     <string name="quantity">Quantity</string>
     <string name="select_unit">Select unit</string>
@@ -33,13 +38,16 @@
     <!-- Database feedback -->
     <string name="item_not_found">Pantry item could not be found.</string>
     <string name="save_failed">The pantry item could not be saved.</string>
-    <string name="item_saved">Ingredient item saved successfully.</string>
+    <string name="item_saved">Ingredient saved successfully.</string>
+    <string name="delete_failed">Unable to delete ingredient.</string>
+    <string name="item_deleted">Ingredient deleted.</string>
 
-    <!-- Suggested recipes screen -->
-    <string name="suggestions_title">Recipes</string>
+    <!-- Suggested recipes -->
+    <string name="suggestions_title">Suggested Recipes</string>
+    <string name="suggestions_subtitle">Recipes shown here use only ingredients currently available in your pantry.</string>
     <string name="suggestions_empty">No recipes match your pantry yet. Add more ingredients.</string>
 
-    <!-- Recipe details screen -->
+    <!-- Recipe details -->
     <string name="ingredients_title">Ingredients</string>
     <string name="method_title">Preparation Method</string>
     <string name="ingredient_count">%1$d ingredients</string>
@@ -56,21 +64,18 @@
     <string name="expiry_days_required">Expiry warning days are required.</string>
     <string name="invalid_expiry_days">Enter a valid number greater than zero.</string>
 
+    <!-- Theme settings -->
+    <string name="dark_mode">Dark Mode</string>
+    <string name="theme_settings">Theme Settings</string>
+
     <!-- Bottom navigation -->
     <string name="nav_pantry">Pantry</string>
     <string name="nav_suggestions">Recipes</string>
     <string name="nav_settings">Settings</string>
 
-    <!-- Suggested recipes screen -->
-    <string name="suggestions_subtitle">
-        Recipes shown here use only ingredients currently available in your pantry.
-    </string>
-
-    <!-- Tracking home ingredients -->
-    <string name="search_hint">Search ingredients</string>
-
-    <!-- Themes -->
-    <string name="dark_mode">Dark Mode</string>
-    <string name="theme_settings">Theme Settings</string>
+    <!-- Toolbar menu -->
+    <string name="menu_pantry">Pantry</string>
+    <string name="menu_suggestions">Suggested Recipes</string>
+    <string name="menu_settings">Settings</string>
 
 </resources>
